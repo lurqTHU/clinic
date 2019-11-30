@@ -179,7 +179,6 @@ def modify_features(feat, feat_type='feat'):
         raise Exception('Invalid feature type: ', feat_type)
     assert len(feat[0]) == len(args)
     for i in range(len(args)):
-         print(i)
          modify_single_feat(feat, i, **args[i], origin=backup)
     check = [[feat[i][j] for i in range(len(feat))] for j in range(len(feat[0]))]
     return rearange_feat(feat) 
