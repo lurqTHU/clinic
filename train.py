@@ -6,7 +6,7 @@ from config import cfg
 from loss import build_loss
 import argparse
 import os
-from evaluate import Acc
+from evaluate import Acc, AverageMeter
 
 def train(config):
     train_loader, val_loader, feat_dim = build_dataloader(config)
@@ -24,12 +24,16 @@ def train(config):
     device = config.DEVICE
 
     evaluator = Acc(thres=config.THRES, metric=config.VAL_METRIC)
- 
+    loss_meter = AverageMeter() 
+
     model.to(device)   
 
     for epoch in range(1, epochs+1):
         scheduler.step()
-
+        
+        evaluator.reset()
+        loss_meter.reset()
+        
         print('Epoch: ', epoch, 'Learning Rate: {:.2e}'.format(scheduler.get_lr()[0]))
 
         model.train()
@@ -42,6 +46,13 @@ def train(config):
          
             loss.backward()
             optimizer.step()
+ 
+            loss_meter.update(loss.item(), feat.shape[0])
+
+            if (iteration + 1) % log_period == 0:
+                print('Epoch[{}/{}] Iteration[{}/{}] Loss: {:.3f}, Lr: {:.2e}'
+                    .format(epoch, epochs, (iteration+1), len(train_loader), 
+                            loss_meter.avg, scheduler.get_lr()[0]))
             
         if epoch % eval_period == 0:
             model.eval()

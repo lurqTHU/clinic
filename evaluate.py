@@ -2,6 +2,26 @@ import numpy as np
 import torch
 
 
+class AverageMeter(object):
+    def __init__(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+    
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+    
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+
 class Acc(object):
     def __init__(self, thres=0.1, metric='L1'):
         super(Acc, self).__init__()
@@ -10,7 +30,7 @@ class Acc(object):
         self.results = []
         self.targets = []
 
-    def reset():
+    def reset(self):
         self.results = []
         self.targets = []
 
@@ -30,5 +50,4 @@ class Acc(object):
               
         acc = np.sum(dist <= self.thres) / dist.shape[0]
         
-        print('Mean distance: ', np.mean(dist))
-        print('Accuracy: ', acc)
+        print('Mean distance:', np.mean(dist), 'Accuracy:', acc)
