@@ -1,11 +1,11 @@
 import torch
 from torch.utils.data import DataLoader
-from dataset import Clinic, ImageDataset 
+from data.dataset import Clinic, ImageDataset 
 
 
 def train_collate_fn(batch):
     feats, targets = zip(*batch)
-    return torch.stack(feats, dim=0), targets
+    return torch.stack(feats, dim=0), torch.tensor(targets, dtype=torch.float32)
 
 
 def build_dataloader(cfg):
@@ -22,11 +22,11 @@ def build_dataloader(cfg):
 
     val_set = ImageDataset(dataset.val)
     val_loader = DataLoader(val_set, 
-                            batch_size=train_batch,
+                            batch_size=val_batch,
                             shuffle=False,
                             collate_fn=train_collate_fn)
 
-    return train_loader, val_loader
+    return train_loader, val_loader, len(dataset.train[0][0])
 
 if __name__ == '__main__':
     import sys

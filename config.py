@@ -1,0 +1,35 @@
+from yacs.config import CfgNode
+
+_C = CfgNode()
+
+_C.DEVICE = 'cuda'
+_C.DEVICE_ID = '0'
+
+# MODEL
+_C.NUM_LAYERS = 1
+_C.MID_PLANES = 30
+_C.LOSS_TYPE = 'SmoothL1'
+_C.THRES = 0.1
+_C.VAL_METRIC = 'L1'
+
+# SOLVER
+_C.BASE_LR = 0.01
+_C.WEIGHT_DECAY = 0.0005
+_C.BIAS_LR_FACTOR = 1
+_C.OPTIMIZER_NAME = 'Adam'
+
+# SCHEDUE
+_C.STEPS = [100]
+_C.GAMMA = 0.1
+_C.MAX_EPOCHS = 100
+_C.LOG_PERIOD = 1
+_C.EVAL_PERIOD = 1
+_C.TRAIN_BATCH_SIZE = 20
+_C.VAL_BATCH_SIZE = 30
+
+# DATASET
+_C.TRAIN_RATIO = 0.7
+
+_C.RANDOM_SEED = 7
+
+cfg = _C.clone()

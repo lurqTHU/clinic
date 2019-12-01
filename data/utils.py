@@ -4,7 +4,7 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from data_config import feat_cfg, target_cfg
+from data.data_config import feat_cfg, target_cfg
 import copy
 
 

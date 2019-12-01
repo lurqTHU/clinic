@@ -1,8 +1,8 @@
 import numpy as np
 from torch.utils.data import Dataset
 import json
-from utils import construct_Clinic
-
+from data.utils import construct_Clinic
+import torch
 
 class Clinic(object):
     def __init__(self, cfg):
@@ -38,6 +38,7 @@ class ImageDataset(Dataset):
         
     def __getitem__(self, item):
         feat, target = self.dataset[item]
+        feat = torch.tensor(feat, dtype=torch.float32)
         return feat, target
 
     def __len__(self):
