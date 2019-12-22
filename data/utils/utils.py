@@ -112,39 +112,50 @@ def modify_single_feat(feat, idx, **args):
     if not isinstance(modifications, list):
         modifications = [modifications]
     for mod in modifications: 
-        if mod is 'dict':
+        if mod is 'dict':               # Dict mapping
             assert args.get('feat_dict') is not None
             feat_dict = args['feat_dict']
             for i in range(len(feat)):
                 feat[i][idx] = feat_dict[feat[i][idx]]
-        elif mod is 'max_min_norm':
+        elif mod is 'max_min_norm':     # Normalization
             assert args.get('bound') is not None
             minimum, maximum = args['bound']
             for i in range(len(feat)):
                 feat[i][idx] = np.float(feat[i][idx] - minimum) / np.float(maximum - minimum)
-        elif mod is 'nothing':
+        elif mod is 'nothing':          # No change
             return
-        elif mod is 'one_hot':
+        elif mod is 'one_hot':          # One hot encoding
             assert args.get('num_classes') is not None
             for i in range(len(feat)):
                 feat[i][idx] = make_one_hot(args['num_classes'], int(feat[i][idx]))
-        elif mod is 'remove':
+        elif mod is 'remove':           # Remove
             for i in range(len(feat)):
                 feat[i][idx] = None
-        elif mod is 'minus_const':
+        elif mod is 'minus_const':      # Minus a constant
             assert args.get('const') is not None
             for i in range(len(feat)):
                 feat[i][idx] = feat[i][idx] - args['const']
-        elif mod is 'minus_idx':
+        elif mod is 'minus_idx':        # Minus the value of another feature index
             assert args.get('index') is not None
             assert args.get('origin') is not None
             origin = args['origin']
             for i in range(len(feat)):
                 feat[i][idx] = feat[i][idx] - origin[i][args['index']]
-        elif mod is 'clip':
+        elif mod is 'clip':             # Clip the value into a fixed interval
             for i in range(len(feat)):
                 feat[i][idx] = args['thres'][0] if feat[i][idx] < args['thres'][0] else feat[i][idx]
                 feat[i][idx] = args['thres'][1] if feat[i][idx] > args['thres'][1] else feat[i][idx]
+        elif mod is 'thres':            # Mapping to 0 or 1 according to threshold
+            assert args.get('threshold') is not None
+            thres = args['threshold']
+            for i in range(len(feat)):
+                feat[i][idx] = 1 if feat[i][idx]
+        elif mod is 'max_idxs':         # Maximum value of specified indexes
+            assert args.get('index_ranges') is not None
+            index_ranges = args['index_ranges']
+            for i in range(len(feat)):
+                for j in index_ranges:
+                    feat[i][idx] = max([feat[i][idx], feat[i][j]])
         else:
             raise Exception('Invalid modification type: ', args['type'])
 
