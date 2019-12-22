@@ -19,7 +19,6 @@ def modify_features(feat, feat_type='feat'):
     for i in range(len(args)):
          modify_single_feat(feat, i, **args[i], origin=backup)
     check = [[feat[i][j] for i in range(len(feat))] for j in range(len(feat[0]))]
-    import pdb;pdb.set_trace()
     return rearange_feat(feat) 
 
 
