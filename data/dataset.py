@@ -26,6 +26,9 @@ class Clinic(object):
         rand_uniform = np.random.uniform(0, 1, total)
         train_mask = np.where(rand_uniform < self.ratio)[0]
         val_mask = np.where(rand_uniform >= self.ratio)[0]
+          
+        print('Train mask:', train_mask)
+        print('Val mask:', val_mask)
         
         for idx in train_mask:
             self.train.append((feats[idx], targets[idx]))
