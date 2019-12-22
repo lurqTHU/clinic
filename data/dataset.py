@@ -19,6 +19,8 @@ class Clinic(object):
         infos = construct_Clinic(self.data_path)
         feats = infos['feat']
         targets = infos['target']
+
+        print('Feature dimension: ', feats.shape[1])
             
         total = feats.shape[0]
         rand_uniform = np.random.uniform(0, 1, total)
