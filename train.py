@@ -11,7 +11,8 @@ from evaluate import Acc, AverageMeter
 def train(config):
     train_loader, val_loader, feat_dim = build_dataloader(config)
 
-    model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim, mid_planes=config.MID_PLANES)
+    model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim, 
+                  mid_planes=config.MID_PLANES, activation_type=config.ACTIVATION)
     
     loss_fn = build_loss(config)
     optimizer = build_optimizer(config, model)
