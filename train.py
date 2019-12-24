@@ -74,6 +74,8 @@ def main():
     if args.cfg_file:    
         cfg.merge_from_file(args.cfg_file)
     cfg.freeze()
+    
+    print('Training with config:\n{}'.format(cfg))
 
     if cfg.DEVICE == 'cuda':
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID

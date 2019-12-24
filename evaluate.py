@@ -47,7 +47,16 @@ class Acc(object):
             dist = np.abs(results-targets)
         elif self.metric == 'L2':
             dist = (results-targets) * (results-targets)
-              
-        acc = np.sum(dist <= self.thres) / dist.shape[0]
+        elif self.metric == 'PROB':
+            dist = 1.0/(1+np.exp(-results))
+            dist = np.where(targets == 1, dist, 1-dist)
         
-        print('Mean distance:', np.mean(dist), 'Accuracy:', acc)
+        if self.metric in ['L1', 'L2']:
+            acc = np.sum(dist <= self.thres) / dist.shape[0]
+            print('Mean distance:', np.mean(dist), 'Accuracy:', acc)
+        elif self.metric == 'PROB':
+            acc = np.sum(dist > self.thres) / dist.shape[0]
+            loss = np.mean(-np.log2(dist))
+            print('Accuracy at threshold {}:'.format(self.thres), acc, 'Loss:', loss)
+
+
