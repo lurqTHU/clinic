@@ -8,7 +8,7 @@ class Clinic(object):
     def __init__(self, cfg):
         super(Clinic, self).__init__()
      
-        self.data_path = '/space1/home/lurq/code/clinic/dataset/raw.xlsx'
+        self.data_path = '/space1/home/lurq/code/clinic/dataset/update.xlsx'
         self.ratio = cfg.TRAIN_RATIO
         self.seed = cfg.RANDOM_SEED
     
