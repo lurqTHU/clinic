@@ -7,8 +7,12 @@ from loss import build_loss
 import argparse
 import os
 from evaluate import Acc, AverageMeter
+import logging
+from utils.logger import setup_logger
 
 def train(config):
+    logger = logging.getLogger('clinic.train')
+ 
     train_loader, val_loader, feat_dim = build_dataloader(config)
 
     model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim, 
@@ -35,7 +39,7 @@ def train(config):
         evaluator.reset()
         loss_meter.reset()
         
-        print('Epoch: ', epoch, 'Learning Rate: {:.2e}'.format(scheduler.get_lr()[0]))
+        logger.info('Epoch: {} Learning Rate: {:.2e}'.format(epoch, scheduler.get_lr()[0]))
 
         model.train()
         for iteration, (feat, target) in enumerate(train_loader):
@@ -51,7 +55,7 @@ def train(config):
             loss_meter.update(loss.item(), feat.shape[0])
 
             if (iteration + 1) % log_period == 0:
-                print('Epoch[{}/{}] Iteration[{}/{}] Loss: {:.3f}, Lr: {:.2e}'
+                logger.info('Epoch[{}/{}] Iteration[{}/{}] Loss: {:.3f}, Lr: {:.2e}'
                     .format(epoch, epochs, (iteration+1), len(train_loader), 
                             loss_meter.avg, scheduler.get_lr()[0]))
             
@@ -62,7 +66,8 @@ def train(config):
                     feat = feat.to(device)
                     score = model(feat)
                     evaluator.update((score, target))
-            evaluator.compute()
+            acc = evaluator.compute()
+            logger.info('Epoch {} evalution, Acc: {:.3f}'.format(epoch, acc))
             
 
 def main():
@@ -74,8 +79,18 @@ def main():
     if args.cfg_file:    
         cfg.merge_from_file(args.cfg_file)
     cfg.freeze()
-    
-    print('Training with config:\n{}'.format(cfg))
+ 
+    experiment_name = 'no_config'
+    if args.cfg_file != "":  
+        experiment_name = args.cfg_file.split('/')[-1].split('.yml')[0]
+
+    output_dir = './output'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    logger, log_path = setup_logger('clinic', output_dir,
+                                    experiment_name)
+    logger.info('Training with config:\n{}'.format(cfg))
 
     if cfg.DEVICE == 'cuda':
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID

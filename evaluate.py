@@ -54,9 +54,10 @@ class Acc(object):
         if self.metric in ['L1', 'L2']:
             acc = np.sum(dist <= self.thres) / dist.shape[0]
             print('Mean distance:', np.mean(dist), 'Accuracy:', acc)
+            return acc
         elif self.metric == 'PROB':
             acc = np.sum(dist > self.thres) / dist.shape[0]
             loss = np.mean(-np.log2(dist))
             print('Accuracy at threshold {}:'.format(self.thres), acc, 'Loss:', loss)
-
+            return acc
 
