@@ -46,7 +46,7 @@ class Acc(object):
         if self.metric == 'L1':
             dist = np.abs(results-targets)
         elif self.metric == 'L2':
-            dist = (results-targets) * (results-targets)
+            dist = np.sqrt((results-targets) * (results-targets))
         elif self.metric == 'PROB':
             dist = 1.0/(1+np.exp(-results))
             dist = np.where(targets == 1, dist, 1-dist)
