@@ -9,6 +9,7 @@ import os
 from evaluate import Acc, AverageMeter
 import logging
 from utils.logger import setup_logger
+from utils.plot_curves import plot_curve
 
 def train(config):
     logger = logging.getLogger('clinic.train')
@@ -67,7 +68,7 @@ def train(config):
                     score = model(feat)
                     evaluator.update((score, target))
             acc = evaluator.compute()
-            logger.info('Epoch {} evalution, Acc: {:.3f}'.format(epoch, acc))
+            logger.info('Epoch {} evaluation, Acc: {:.3f}'.format(epoch, acc))
             
 
 def main():
@@ -84,7 +85,7 @@ def main():
     if args.cfg_file != "":  
         experiment_name = args.cfg_file.split('/')[-1].split('.yml')[0]
 
-    output_dir = './output'
+    output_dir = './output/' + experiment_name
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -96,8 +97,9 @@ def main():
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID
     
     train(cfg)
-   
 
+    plot_curve(log_path, experiment_name, output_dir)
+   
 
 if __name__ == '__main__':
     main()
