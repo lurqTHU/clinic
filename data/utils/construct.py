@@ -7,7 +7,7 @@ import os
 from data.utils import modify_features, modify_single_feat
 
 
-sheet_names = ['初粘患者设计', '精调患者设计', 'VAS初粘', '焦虑初粘', 'VAS精调', '焦虑精调']
+sheet_names = ['初粘患者设计', '精调患者设计', 'VAS初粘', 'SAS初粘', 'VAS精调', '焦虑精调']
 sheet_flags = ['feat', 'feat', 'vas', 'anxiety', 'vas', 'anxiety']
 
 
