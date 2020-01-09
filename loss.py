@@ -16,6 +16,7 @@ def build_loss(cfg):
 
     def loss_fn(score, target):
         if loss_type == 'CE':
+            # BCE loss needs normalization first
             score = torch.sigmoid(score)
         loss = loss_func(score, target)
         return loss
