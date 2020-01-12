@@ -29,6 +29,8 @@ class Clinic(object):
           
         print('Train mask:', train_mask)
         print('Val mask:', val_mask)
+        print('Negative counts:', np.sum(targets==0))
+        print('Positive counts:', np.sum(targets==1))
         
         for idx in train_mask:
             self.train.append((feats[idx], targets[idx]))
