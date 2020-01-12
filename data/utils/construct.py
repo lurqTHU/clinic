@@ -7,8 +7,8 @@ import os
 from data.utils import modify_features, modify_single_feat
 
 
-sheet_names = ['初粘患者设计', '精调患者设计', 'VAS初粘', 'SAS初粘', 'VAS精调', '焦虑精调']
-sheet_flags = ['feat', 'feat', 'vas', 'anxiety', 'vas', 'anxiety']
+sheet_names = ['初粘患者设计', '精调患者设计', 'VAS初粘', 'SAS初粘', 'QoL初粘' , 'VAS精调', '焦虑精调', 'QoL精调']
+sheet_flags = ['feat', 'feat', 'vas', 'anxiety', 'qol', 'vas', 'anxiety', 'qol']
 
 
 def parse_excel(excel_path):
@@ -47,7 +47,7 @@ def parse_excel(excel_path):
 def construct_Clinic(excel_path):
     Clinic = parse_excel(excel_path)
     feat_idx = [0, 1]
-    target_idx = [2, 4]
+    target_idx = [2, 5]
     all_feat = []
     all_target = []
     for idx in feat_idx:
