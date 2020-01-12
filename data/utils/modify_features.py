@@ -104,9 +104,11 @@ def modify_single_feat(feat, idx, **args):
                 feat[i][idx] = 1 if feat[i][idx] >= thres else 0
         elif mod is 'max_idxs':         # Maximum value of specified indexes
             assert args.get('index_ranges') is not None
+            assert args.get('origin') is not None
+            origin = args['origin']
             index_ranges = args['index_ranges']
             for i in range(len(feat)):
                 for j in index_ranges:
-                    feat[i][idx] = max([feat[i][idx], feat[i][j]])
+                    feat[i][idx] = max([feat[i][idx], origin[i][j]])
         else:
             raise Exception('Invalid modification type: ', args['type'])
