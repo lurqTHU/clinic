@@ -18,11 +18,10 @@ def plot_curve(log_path, experiment_name, output):
             loss = float(ln.split('Loss:')[1].split(',')[0])
             curve_loss.append(loss)
 
-        if 'evaluation' in ln:
-            acc = float(ln.split('Acc:')[1])
+        if 'Mean Distance' in ln and 'Accuracy' in ln:
+            acc = float(ln.split('Loss')[0].split(':')[-1].split(',')[0])
             curve_acc.append(acc)
 
-        if 'Mean Distance' in ln:
             dis = float(ln.split('Mean Distance:')[1].split(',')[0])
             curve_dis.append(dis)
 
