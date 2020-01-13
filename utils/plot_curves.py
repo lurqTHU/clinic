@@ -46,6 +46,9 @@ def plot_curve(log_path, experiment_name, output):
 
     # plt.draw()
     fig_path = os.path.join(output, experiment_name + '.png')
+    print('Min trainig loss: {:.3f}'.format(min(curve_loss)))
+    print('Max accuracy: {:.3f}'.format(max(curve_acc)))
+    print('Min distance: {:.3f}'.format(min(curve_dis)))
     plt.savefig(fig_path)
 
 
