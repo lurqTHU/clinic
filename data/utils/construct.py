@@ -7,8 +7,14 @@ import os
 from data.utils import modify_features, modify_single_feat
 
 
-sheet_names = ['初粘患者设计', '精调患者设计', 'VAS初粘', 'SAS初粘', 'QoL初粘' , 'VAS精调', '焦虑精调', 'QoL精调']
-sheet_flags = ['feat', 'feat', 'vas', 'anxiety', 'qol', 'vas', 'anxiety', 'qol']
+sheet_names = ['初粘患者设计', '精调患者设计', 
+               'VAS初粘', 'SAS初粘', 'QoL初粘' , 
+               'VAS精调', '焦虑精调', 'QoL精调',
+               'ICON初粘', 'ICON精调']
+sheet_flags = ['feat', 'feat', 
+               'vas', 'anxiety', 'qol', 
+               'vas', 'anxiety', 'qol',
+               'icon', 'icon']
 
 
 def parse_excel(excel_path):
@@ -44,10 +50,11 @@ def parse_excel(excel_path):
     return Clinic
     
 
-def construct_Clinic(excel_path):
+def construct_Clinic(excel_path, use_icon):
     Clinic = parse_excel(excel_path)
+    # Select sheet content
     feat_idx = [0, 1]
-    target_idx = [2, 5]
+    target_idx = [3, 6]
     all_feat = []
     all_target = []
     for idx in feat_idx:
@@ -64,6 +71,18 @@ def construct_Clinic(excel_path):
         all_target.append(data)
     all_feat = np.concatenate(all_feat, axis = 0)
     all_target = np.concatenate(all_target, axis = 0)
+    if use_icon:
+        # Add ICON feature
+        icon_idx = [8, 9]
+        all_icon = []
+        for idx in icon_idx:
+            name = sheet_names[idx]
+            keys = Clinic[name]['key']
+            data = Clinic[name]['data']
+            data = modify_features(data, feat_type=sheet_flags[idx])
+            all_icon.append(data)    
+        all_icon = np.concatenate(all_icon, axis = 0)
+        all_feat = np.concatenate((all_feat, all_icon), axis = 1)
     return {'feat': all_feat, 'target': all_target}
 
 

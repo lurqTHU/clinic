@@ -2,7 +2,7 @@ import numpy as np
 import os
 from collections import defaultdict
 import copy
-from data.utils import feat_cfg, vas_cfg, anxiety_cfg, qol_cfg
+from data.utils import feat_cfg, vas_cfg, anxiety_cfg, qol_cfg, icon_cfg
 
 
 def modify_features(feat, feat_type='feat'):
@@ -15,6 +15,8 @@ def modify_features(feat, feat_type='feat'):
         args = anxiety_cfg
     elif feat_type is 'qol':
         args = qol_cfg
+    elif feat_type is 'icon':
+        args = icon_cfg
     else:
         raise Exception('Invalid feature type: ', feat_type)
     assert len(feat[0]) == len(args)

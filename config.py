@@ -10,6 +10,7 @@ _C.NUM_LAYERS = 1
 _C.MID_PLANES = 20
 _C.ACTIVATION = 'relu' 
 _C.LOSS_TYPE = 'MSE'
+_C.USE_ICON = False
 
 # EVALUATE
 _C.THRES = 0.1
