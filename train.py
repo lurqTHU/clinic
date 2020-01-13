@@ -40,8 +40,6 @@ def train(config):
         evaluator.reset()
         loss_meter.reset()
         
-        logger.info('Epoch: {} Learning Rate: {:.2e}'.format(epoch, scheduler.get_lr()[0]))
-
         model.train()
         for iteration, (feat, target) in enumerate(train_loader):
             optimizer.zero_grad()
@@ -68,7 +66,6 @@ def train(config):
                     score = model(feat)
                     evaluator.update((score, target))
             acc = evaluator.compute()
-            logger.info('Epoch {} evaluation, Acc: {:.3f}'.format(epoch, acc))
             
 
 def main():

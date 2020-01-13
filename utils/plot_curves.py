@@ -10,6 +10,7 @@ def plot_curve(log_path, experiment_name, output):
 
     curve_loss = []
     curve_acc = []
+    curve_dis = []
 
     for ln in fp:
         # get train_iterations and train_loss
@@ -21,20 +22,28 @@ def plot_curve(log_path, experiment_name, output):
             acc = float(ln.split('Acc:')[1])
             curve_acc.append(acc)
 
+        if 'Mean Distance' in ln:
+            dis = float(ln.split('Mean Distance:')[1].split(',')[0])
+            curve_dis.append(dis)
+
     fp.close()
 
     plt.figure(figsize=(10,5))
 
-    plt.subplot(1, 2, 1)
+    plt.subplot(2, 2, 1)
     plt.plot(curve_loss, 'b')
     plt.xlabel('iterations')
     plt.ylabel('train loss')
 
-    plt.subplot(1, 2, 2)
+    plt.subplot(2, 2, 2)
     plt.plot(curve_acc, 'r')
     plt.xlabel('iterations')
     plt.ylabel('val accuracy')
 
+    plt.subplot(2, 2, 3)
+    plt.plot(curve_dis, 'y')
+    plt.xlabel('epochs')
+    plt.ylabel('mean distance')
 
     # plt.draw()
     fig_path = os.path.join(output, experiment_name + '.png')

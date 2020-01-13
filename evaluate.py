@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import logging
 
 
 class AverageMeter(object):
@@ -40,9 +41,11 @@ class Acc(object):
         self.targets.extend(np.asarray(target))
 
     def compute(self):
+        logger = logging.getLogger('clinic.val')
+
         results = torch.cat(self.results, dim=0).cpu().numpy()
-        targets = np.asarray(self.targets)
-        
+        targets = np.asarray(self.targets)         
+
         if self.metric == 'L1':
             dist = np.abs(results-targets)
         elif self.metric == 'L2':
@@ -53,11 +56,13 @@ class Acc(object):
         
         if self.metric in ['L1', 'L2']:
             acc = np.sum(dist <= self.thres) / dist.shape[0]
-            print('Mean distance:', np.mean(dist), 'Accuracy:', acc)
+            logger.info('Mean distance: {:.3f}, Accuracy: {:.3f}'.format(np.mean(dist), acc))
             return acc
         elif self.metric == 'PROB':
             acc = np.sum(dist > self.thres) / dist.shape[0]
             loss = np.mean(-np.log2(dist))
-            print('Accuracy at threshold {}:'.format(self.thres), acc, 'Loss:', loss)
+            delta = np.mean(1-dist)
+            logger.info('Accuracy at threshold {:.3f}: {:.3f}, Loss: {:.3f}, '   
+                        'Mean Distance: {:.3f}'.format(self.thres, acc, loss, delta))
             return acc
 
