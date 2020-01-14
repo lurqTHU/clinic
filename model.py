@@ -43,4 +43,8 @@ class BPnet(nn.Module):
         out = self.mid_layer(out)
         out = self.out_layer(out)
         return out
-            
+  
+    def load_param(self, trained_path):
+        param_dict = torch.load(trained_path)
+        for i in param_dict:
+            self.state_dict()[i].copy_(param_dict[i])          

@@ -33,7 +33,9 @@ _C.VAL_BATCH_SIZE = 30
 
 # DATASET
 _C.TRAIN_RATIO = 0.7
-
 _C.RANDOM_SEED = 1
+
+# TEST
+_C.TEST_WEIGHT = './output/'
 
 cfg = _C.clone()

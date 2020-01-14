@@ -37,8 +37,8 @@ class Acc(object):
 
     def update(self, data):
         result, target = data
-        self.results.append(result)
-        self.targets.extend(np.asarray(target))
+        self.results.append(result.cpu())
+        self.targets.extend(np.asarray(target.cpu()))
 
     def compute(self):
         logger = logging.getLogger('clinic.val')

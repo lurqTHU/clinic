@@ -11,7 +11,7 @@ import logging
 from utils.logger import setup_logger
 from utils.plot_curves import plot_curve
 
-def train(config):
+def train(config, output_dir):
     logger = logging.getLogger('clinic.train')
  
     train_loader, val_loader, feat_dim = build_dataloader(config)
@@ -66,7 +66,9 @@ def train(config):
                     score = model(feat)
                     evaluator.update((score, target))
             acc = evaluator.compute()
-            
+    
+    torch.save(model.state_dict(), os.path.join(output_dir, 'model.pth')) 
+
 
 def main():
     parser = argparse.ArgumentParser(description='Clinic Training')
@@ -93,7 +95,7 @@ def main():
     if cfg.DEVICE == 'cuda':
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID
     
-    train(cfg)
+    train(cfg, output_dir)
 
     plot_curve(log_path, experiment_name, output_dir)
    
