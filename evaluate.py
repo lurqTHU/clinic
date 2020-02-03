@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import logging
+from sklearn import metrics
 
 
 class AverageMeter(object):
@@ -56,13 +57,17 @@ class Acc(object):
         
         if self.metric in ['L1', 'L2']:
             acc = np.sum(dist <= self.thres) / dist.shape[0]
-            logger.info('Mean distance: {:.3f}, Accuracy: {:.3f}'.format(np.mean(dist), acc))
+            logger.info('Mean distance: {:.3f}, '
+                        'Accuracy at threshold {:.3f}: {:.3f}'\
+                        .format(np.mean(dist), self.thres, acc))
             return acc
         elif self.metric == 'PROB':
             acc = np.sum(dist > self.thres) / dist.shape[0]
             loss = np.mean(-np.log2(dist))
             delta = np.mean(1-dist)
+            auc = metrics.roc_auc_score(targets, results) 
             logger.info('Accuracy at threshold {:.3f}: {:.3f}, Loss: {:.3f}, '   
-                        'Mean Distance: {:.3f}'.format(self.thres, acc, loss, delta))
+                        'Mean Distance: {:.3f}, AUC: {:.3f}'\
+                        .format(self.thres, acc, loss, delta, auc))
             return acc
 

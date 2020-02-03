@@ -11,6 +11,7 @@ def plot_curve(log_path, experiment_name, output):
     curve_loss = []
     curve_acc = []
     curve_dis = []
+    curve_auc = []
 
     for ln in fp:
         # get train_iterations and train_loss
@@ -24,6 +25,10 @@ def plot_curve(log_path, experiment_name, output):
 
             dis = float(ln.split('Mean Distance:')[1].split(',')[0])
             curve_dis.append(dis)
+
+        if 'AUC' in ln:
+            auc = float(ln.split('AUC:')[1].split(',')[0])
+            curve_auc.append(auc)
 
     fp.close()
 
@@ -44,11 +49,17 @@ def plot_curve(log_path, experiment_name, output):
     plt.xlabel('epochs')
     plt.ylabel('mean distance')
 
+    plt.subplot(2, 2, 4)
+    plt.plot(curve_auc, 'g')
+    plt.xlabel('epochs')
+    plt.ylabel('auc')
+
     # plt.draw()
     fig_path = os.path.join(output, experiment_name + '.png')
     print('Min trainig loss: {:.3f}'.format(min(curve_loss)))
     print('Max accuracy: {:.3f}'.format(max(curve_acc)))
     print('Min distance: {:.3f}'.format(min(curve_dis)))
+    print('Max auc: {:.3f}'.format(max(curve_auc)))
     plt.savefig(fig_path)
 
 
