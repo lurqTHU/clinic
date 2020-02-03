@@ -112,5 +112,17 @@ def modify_single_feat(feat, idx, **args):
             for i in range(len(feat)):
                 for j in index_ranges:
                     feat[i][idx] = max([feat[i][idx], origin[i][j]])
+        elif mod is 'max_minus_min':
+            assert args.get('index_ranges') is not None
+            assert args.get('origin') is not None
+            origin = args['origin']
+            index_ranges = args['index_ranges']
+            for i in range(len(feat)):
+                maximum = origin[i][index_ranges[0]]
+                minimum = origin[i][index_ranges[0]]
+                for j in index_ranges:
+                     maximum = max([maximum, origin[i][j]])
+                     minimum = min([minimum, origin[i][j]])
+                feat[i][idx] = maximum - minimum
         else:
             raise Exception('Invalid modification type: ', args['type'])
