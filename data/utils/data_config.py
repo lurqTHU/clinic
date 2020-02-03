@@ -1,14 +1,14 @@
 feat_cfg = [
             {'type': 'remove'},                                # 0. 性别
-            {'type': 'threshold', 'threshold': 40.0},                               # 1. 年龄
+            {'type': 'max_min_norm', 'bound': [17.0, 48.0]},                               # 1. 年龄
             {'type': 'bool'},                               # 2. 是否第一步粘附件
             {'type': 'remove'},                               # 3. 是否纳7
-            {'type': 'remove'}, #'max_min_norm', 'bound': [0.0, 4.0]},                 # 4. 纳了几个7
+            {'type': 'remove'},                         # 4. 纳了几个7
             {'type': 'bool'},                                                      # 5. 拔牙与否
             {'type': 'max_min_norm', 'bound': [0.0, 4.0]},                 # 6. 拔牙个数
-            {'type': 'remove'}, #'clip', 'thres': [0.0, 1.0]},                               # 7. 是否橡皮筋牵引
-            {'type': 'remove'},                               # 8. 牵引根数
-            {'type': 'remove'},#'one_hot', 'num_classes': 5},            # 9. II类牵引2或III类3或颌内1三角4 没有表示为0
+            {'type': 'clip', 'thres': [0.0, 1.0]},                               # 7. 是否橡皮筋牵引
+            {'type': 'max_min_norm', 'bound': [0.0, 4.0]},                               # 8. 牵引根数
+            {'type': 'remove'},                       # 9. II类牵引2或III类3或颌内1三角4 没有表示为0
             {'type': 'remove'},                            # 10. 前牙区牵引
             {'type': 'dict', 'feat_dict': {0:0.0, 1:float(1)/3, 2: float(2)/3, 3:1.0, 4:0.0}},        # 11. 拥挤度分类
             {'type': 'remove'},            # 12. 安氏分类共三类
@@ -25,7 +25,7 @@ feat_cfg = [
             {'type': 'bool'},                  # 23. 有无percisioncut
             {'type': 'remove'},                  # 24. PC个数
             {'type': 'bool'},                  # 25. 有无IPR
-            {'type': 'remove'},                  # 26. IPR量 
+            {'type': ['clip', 'max_min_norm'], 'thres': [0.0, 4.0], 'bound': [0.0, 4.0]},                  # 26. IPR量 
             {'type': 'bool'},                  # 27. 推磨牙向后
             {'type': ['clip', 'max_min_norm'], 'thres': [0.0, 4.0], 'bound': [0.0, 4.0]}                   # 28. button                     
            ]
