@@ -13,7 +13,7 @@ def calculate_best_point(fpr, tpr, thresholds):
     return ind
     
 
-def analyze_roc(fpr, tpr, thresholds, plot_path):
+def analyze_roc(fpr, tpr, thresholds, plot_path, img_name='roc.png'):
     
     auc = metrics.auc(fpr, tpr)
     ind = calculate_best_point(fpr, tpr, thresholds)    
@@ -43,11 +43,11 @@ def analyze_roc(fpr, tpr, thresholds, plot_path):
                 # horizontalalignment='left', verticalalignment='top',
                  fontsize=10)
 
-    ax.annotate('AUC = {:.3f}'.format(auc), xy=(0.5, 0.5))
+    ax.annotate('AUC = {:.3f}'.format(auc), xy=(0.6, 0.2))
     
     ax.add_line(Line2D((0.0, 1.0), (0.0, 1.0), linestyle='--', linewidth=1, color='gray'))    
 
-    fig_path = os.path.join(plot_path, 'ROC.png')
+    fig_path = os.path.join(plot_path, img_name)
     plt.savefig(fig_path)
 
     

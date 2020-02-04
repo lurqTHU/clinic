@@ -30,6 +30,7 @@ def test(config, output_dir):
     evaluator = Acc(thres=config.THRES, metric=config.VAL_METRIC)
     
     model.eval()
+   
     for iteration, (feat, target) in enumerate(val_loader):
         with torch.no_grad():
             feat = feat.to(device)
@@ -37,8 +38,17 @@ def test(config, output_dir):
             score = model(feat)
             evaluator.update((score, target))
     fpr, tpr, thresholds = evaluator.compute(roc_curve=True)
-   
-    analyze_roc(fpr, tpr, thresholds, output_dir)
+    analyze_roc(fpr, tpr, thresholds, output_dir, img_name='roc_val.png')
+
+    evaluator.reset()
+    for iteration, (feat, target) in enumerate(train_loader):
+        with torch.no_grad():
+            feat = feat.to(device)
+            target = target.to(device)
+            score = model(feat)
+            evaluator.update((score, target))
+    fpr, tpr, thresholds = evaluator.compute(roc_curve=True)
+    analyze_roc(fpr, tpr, thresholds, output_dir, img_name='roc_train.png')
 
 
 def main():
