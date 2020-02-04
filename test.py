@@ -7,9 +7,10 @@ import os
 from evaluate import Acc
 import logging
 import sys
+from utils.roc import analyze_roc 
 
 
-def test(config):
+def test(config, output_dir):
     logger = logging.getLogger('clinic')
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler(stream=sys.stdout)
@@ -28,13 +29,16 @@ def test(config):
 
     evaluator = Acc(thres=config.THRES, metric=config.VAL_METRIC)
     
+    model.eval()
     for iteration, (feat, target) in enumerate(val_loader):
         with torch.no_grad():
             feat = feat.to(device)
             target = target.to(device)
             score = model(feat)
             evaluator.update((score, target))
-    acc = evaluator.compute()
+    tpr, fpr, thresholds = evaluator.compute(roc_curve=True)
+   
+    analyze_roc(fpr, tpr, thresholds, output_dir)
 
 
 def main():
@@ -46,8 +50,16 @@ def main():
     if args.cfg_file:
         cfg.merge_from_file(args.cfg_file)
     cfg.freeze()
-    
-    test(cfg)
+
+    experiment_name = 'no_config'
+    if args.cfg_file != "":
+        experiment_name = args.cfg_file.split('/')[-1].split('.yml')[0]
+
+    output_dir = './output/' + experiment_name
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+   
+    test(cfg, output_dir)
 
 
 if __name__ == '__main__':

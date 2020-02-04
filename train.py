@@ -65,7 +65,7 @@ def train(config, output_dir):
                     feat = feat.to(device)
                     score = model(feat)
                     evaluator.update((score, target))
-            acc = evaluator.compute()
+            evaluator.compute()
     
     torch.save(model.state_dict(), os.path.join(output_dir, 'model.pth')) 
 
