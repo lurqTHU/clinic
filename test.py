@@ -36,7 +36,7 @@ def test(config, output_dir):
             target = target.to(device)
             score = model(feat)
             evaluator.update((score, target))
-    tpr, fpr, thresholds = evaluator.compute(roc_curve=True)
+    fpr, tpr, thresholds = evaluator.compute(roc_curve=True)
    
     analyze_roc(fpr, tpr, thresholds, output_dir)
 
