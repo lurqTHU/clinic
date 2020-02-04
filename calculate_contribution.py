@@ -25,6 +25,7 @@ def calculate_contribution(config):
 
     model.load_param(config.TEST_WEIGHT)
     model.to(device)
+    model.eval()
 
     cumulator = torch.zeros(feat_dim, dtype=torch.float32)
     cumulator = cumulator.to(device)
