@@ -1,5 +1,5 @@
 feat_cfg = [
-            {'type': 'remove'},                                # 0. 性别
+            {'type': 'dict', 'feat_dict': {'女':0.0, '男':1.0}},                                # 0. 性别
             {'type': 'max_min_norm', 'bound': [17.0, 48.0]},                               # 1. 年龄
             {'type': 'bool'},                               # 2. 是否第一步粘附件
             {'type': 'remove'},                               # 3. 是否纳7
@@ -15,10 +15,10 @@ feat_cfg = [
             {'type': 'remove'},          # 13. 骨性分类共三类
             {'type': 'remove'},                  # 14. 门牙缺失与否
             {'type': 'remove'},                  # 15. 设计步数              
-            {'type': 'remove'},                  # 16. 附件牙数
-            {'type': 'threshold', 'threshold': 1.0},                  # 17. 舌侧附件
+            {'type': 'max_min_norm', 'bound': [4.0, 24.0]},                  # 16. 附件牙数
+            {'type': 'max_min_norm', 'bound': [0.0, 4.0]},                  # 17. 舌侧附件
             {'type': 'max_min_norm', 'bound': [0.0, 18.0]},                  # 18. 优化附件牙数
-            {'type': 'nothing'},                  # 19. 优化附件比例%
+            {'type': 'remove'},                  # 19. 优化附件比例%
             {'type': 'max_min_norm', 'bound': [0.0, 4.0]},                  # 20. 上切牙附件个数
             {'type': 'remove'},                  # 21. 有无powerarm
             {'type': 'remove'},                  # 22. PA个数
@@ -32,8 +32,8 @@ feat_cfg = [
   
 vas_cfg = [
               {'type': 'remove'},                                              # 基线
-              {'type': ['max_idxs', 'threshold'], 
-               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 4.0},                  # 初粘当天
+              {'type': ['max_minus_min', 'threshold'], 
+               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 3.0},                  # 初粘当天
               {'type': 'remove'},                  # 初粘后一天
               {'type': 'remove'},                  # day2
               {'type': 'remove'},                  # day3
@@ -45,8 +45,8 @@ vas_cfg = [
 
 anxiety_cfg =  [
               {'type': 'remove'},                                              # 基线
-              {'type': ['max_idxs', 'threshold'], 
-               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 45.0},                  # 初粘当天
+              {'type': ['max_minus_min', 'threshold'], 
+               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 7.0},                  # 初粘当天
               {'type': 'remove'},                  # 初粘后一天
               {'type': 'remove'},                  # day2
               {'type': 'remove'},                  # day3
@@ -58,8 +58,8 @@ anxiety_cfg =  [
 
 qol_cfg = [
               {'type': 'remove'},                                              # 基线
-              {'type': ['max_idxs', 'threshold'], 
-               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 20.0},                  # 初粘当天
+              {'type': ['max_minus_min', 'threshold'], 
+               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 10.0},                  # 初粘当天
               {'type': 'remove'},                  # 初粘后一天
               {'type': 'remove'},                  # day2
               {'type': 'remove'},                  # day3
