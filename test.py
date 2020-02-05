@@ -61,6 +61,9 @@ def main():
         cfg.merge_from_file(args.cfg_file)
     cfg.freeze()
 
+    if cfg.DEVICE == 'cuda':
+        os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID
+
     experiment_name = 'no_config'
     if args.cfg_file != "":
         experiment_name = args.cfg_file.split('/')[-1].split('.yml')[0]
