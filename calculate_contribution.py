@@ -60,6 +60,9 @@ def main():
     if args.cfg_file:
         cfg.merge_from_file(args.cfg_file)
     cfg.freeze()
+  
+    if cfg.DEVICE == 'cuda':
+        os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID 
     
     calculate_contribution(cfg)
 
