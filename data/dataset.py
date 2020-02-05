@@ -21,16 +21,29 @@ class Clinic(object):
         targets = infos['target']
 
         print('Feature dimension: ', feats.shape[1])
-            
-        total = feats.shape[0]
-        rand_uniform = np.random.uniform(0, 1, total)
-        train_mask = np.where(rand_uniform < self.ratio)[0]
-        val_mask = np.where(rand_uniform >= self.ratio)[0]
+           
+        # Split dataset into train and test set
+        positive_mask = np.where(targets == 1)[0]
+        negative_mask = np.where(targets == 0)[0] 
+        train_mask = []
+        val_mask = []
+        for pick in (positive_mask, negative_mask):
+            total = len(pick)
+            rand_uniform = np.random.uniform(0, 1, total)
+            train_mask.extend(pick[rand_uniform < self.ratio])
+            val_mask.extend(pick[rand_uniform >= self.ratio])
           
         print('Train mask:', train_mask)
         print('Val mask:', val_mask)
-        print('Negative counts:', np.sum(targets==0))
-        print('Positive counts:', np.sum(targets==1))
+        print('{:>25}{:>8}{:>8}'.format('Total', 'Train', 'Test'))
+        print('Negative counts: {:>8}{:>8}{:>8}'\
+              .format(np.sum(targets==0), 
+                      np.sum(targets[train_mask]==0),
+                      np.sum(targets[val_mask]==0)))
+        print('Positive counts: {:>8}{:>8}{:>8}'\
+              .format(np.sum(targets==1), 
+                      np.sum(targets[train_mask]==1),
+                      np.sum(targets[val_mask]==1)))
         
         for idx in train_mask:
             self.train.append((feats[idx], targets[idx]))
