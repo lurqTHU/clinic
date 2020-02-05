@@ -27,6 +27,7 @@ def train(config, output_dir):
     epochs = config.MAX_EPOCHS
     log_period = config.LOG_PERIOD
     eval_period = config.EVAL_PERIOD
+    save_period = config.CHECKPOINT_PERIOD
     device = config.DEVICE
 
     evaluator = Acc(thres=config.THRES, metric=config.VAL_METRIC)
@@ -66,8 +67,9 @@ def train(config, output_dir):
                     score = model(feat)
                     evaluator.update((score, target))
             evaluator.compute()
-    
-    torch.save(model.state_dict(), os.path.join(output_dir, 'model.pth')) 
+        
+        if epoch % save_period == 0:
+            torch.save(model.state_dict(), os.path.join(output_dir, 'model_{}.pth'.format(epoch))) 
 
 
 def main():
