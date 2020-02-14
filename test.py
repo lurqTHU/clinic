@@ -38,7 +38,9 @@ def test(config, output_dir):
             score = model(feat)
             evaluator.update((score, target))
     fpr, tpr, thresholds = evaluator.compute(roc_curve=True)
-    analyze_roc(fpr, tpr, thresholds, output_dir, img_name='roc_val.png')
+    analyze_roc(fpr, tpr, thresholds, output_dir, 
+                img_name='roc_val.png', 
+                target_name=config.TARGET_NAME)
 
     evaluator.reset()
     for iteration, (feat, target) in enumerate(train_loader):
@@ -48,7 +50,9 @@ def test(config, output_dir):
             score = model(feat)
             evaluator.update((score, target))
     fpr, tpr, thresholds = evaluator.compute(roc_curve=True)
-    analyze_roc(fpr, tpr, thresholds, output_dir, img_name='roc_train.png')
+    analyze_roc(fpr, tpr, thresholds, output_dir, 
+                img_name='roc_train.png',
+                target_name=config.TARGET_NAME)
 
 
 def main():
