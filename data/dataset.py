@@ -16,7 +16,7 @@ class Clinic(object):
         
         self.train = []
         self.val = []
-        infos = construct_Clinic(self.data_path, cfg.USE_ICON)
+        infos = construct_Clinic(self.data_path, cfg.TARGET_NAME, cfg.USE_ICON)
         feats = infos['feat']
         targets = infos['target']
 

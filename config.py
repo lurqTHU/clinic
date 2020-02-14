@@ -11,6 +11,7 @@ _C.MID_PLANES = 20
 _C.ACTIVATION = 'relu' 
 _C.LOSS_TYPE = 'MSE'
 _C.USE_ICON = False
+_C.TARGET_NAME = 'vas'
 
 # EVALUATE
 _C.THRES = 0.1

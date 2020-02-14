@@ -50,11 +50,12 @@ def parse_excel(excel_path):
     return Clinic
     
 
-def construct_Clinic(excel_path, use_icon):
+def construct_Clinic(excel_path, target_name, use_icon):
     Clinic = parse_excel(excel_path)
     # Select sheet content
     feat_idx = [0, 1]
-    target_idx = [3, 6]
+    target_idx_dict = {'vas': [2, 5], 'sas': [3, 6], 'qol': [4, 7]}
+    target_idx = target_idx_dict[target_name]
     all_feat = []
     all_target = []
     for idx in feat_idx:
