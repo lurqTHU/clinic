@@ -7,15 +7,11 @@ import os
 from evaluate import Acc
 import logging
 import sys
+from test import calculate_95CI
+import numpy as np
 
 
-def calculate_contribution(config):
-    logger = logging.getLogger('clinic')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler(stream=sys.stdout)
-    ch.setLevel(logging.DEBUG)
-    logger.addHandler(ch)
-
+def calculate_contribution(config, test_weight):
     device = config.DEVICE
  
     train_loader, val_loader, feat_dim = build_dataloader(config)
@@ -23,7 +19,7 @@ def calculate_contribution(config):
     model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim,
                   mid_planes=config.MID_PLANES, activation_type=config.ACTIVATION)
 
-    model.load_param(config.TEST_WEIGHT)
+    model.load_param(test_weight)
     model.to(device)
     model.eval()
 
@@ -48,9 +44,33 @@ def calculate_contribution(config):
             score[i].backward(retain_graph=True)
         cumulator += torch.sum(torch.pow(feat.grad, 2), dim=0)
 
-    logger.info('The contribution of each input element: {}'.format(cumulator))
+    return np.array(cumulator.cpu())
+  
 
+def multi_contribution(config):
+    logger = logging.getLogger('clinic')
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler(stream=sys.stdout)
+    ch.setLevel(logging.DEBUG)
+    logger.addHandler(ch)
 
+    test_folder = cfg.TEST_FOLDER
+    test_prefix = cfg.TEST_PREFIX
+    model_weights = os.listdir(test_folder)
+
+    all_contribs = []
+    for weight in model_weights:
+        if weight.startswith(test_prefix) and weight.endswith('.pth'):
+            weight = os.path.join(test_folder, weight)
+            contrib = calculate_contribution(config, weight)
+            all_contribs.append(contrib)
+    med, CI_95 = calculate_95CI(np.array(all_contribs).transpose(1,0))
+    
+    logger.info('The median of contribution of each input element: {}'\
+                .format(med))
+    logger.info('95% CI: {}'.format(CI_95))
+
+    
 def main():
     parser = argparse.ArgumentParser(description='Clinic Calculating Contribution')
     parser.add_argument('--cfg_file', default=None, type=str)
@@ -64,7 +84,7 @@ def main():
     if cfg.DEVICE == 'cuda':
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID 
     
-    calculate_contribution(cfg)
+    multi_contribution(cfg)
 
 
 if __name__ == '__main__':
