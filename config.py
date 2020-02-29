@@ -12,6 +12,7 @@ _C.ACTIVATION = 'relu'
 _C.LOSS_TYPE = 'MSE'
 _C.USE_ICON = False
 _C.TARGET_NAME = 'vas'
+_C.SAVE_PREFIX = 'VAS'
 
 # EVALUATE
 _C.THRES = 0.1

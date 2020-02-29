@@ -4,7 +4,8 @@ import datetime
 import logging
 
 
-def setup_logger(name, save_dir, experiment_name):
+def setup_logger(name, save_dir, experiment_name,
+                 trial_num=0, save_log=False):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
@@ -15,14 +16,18 @@ def setup_logger(name, save_dir, experiment_name):
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    now_time = datetime.datetime.now()
-    now_time = str(now_time)[:19]
-    log_name = experiment_name + '_' + now_time + '_log.txt'
-    log_path = os.path.join(save_dir, log_name)
+    if save_log:
+        now_time = datetime.datetime.now()
+        now_time = str(now_time)[:19]
+        log_name = experiment_name + '_' + 'trial_{}_'.format(trial_num) \
+                   + now_time + '_log.txt'
+        log_path = os.path.join(save_dir, log_name)
 
-    fh = logging.FileHandler(log_path, mode='w')
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+        fh = logging.FileHandler(log_path, mode='w')
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    else:
+        log_path = None
 
     return logger, log_path

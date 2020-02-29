@@ -11,13 +11,14 @@ import logging
 from utils.logger import setup_logger
 from utils.plot_curves import plot_curve
 
-def train(config, output_dir):
+def train(config, output_dir, trial_num=0):
     logger = logging.getLogger('clinic.train')
  
     train_loader, val_loader, feat_dim = build_dataloader(config)
 
     model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim, 
-                  mid_planes=config.MID_PLANES, activation_type=config.ACTIVATION)
+                  mid_planes=config.MID_PLANES, 
+                  activation_type=config.ACTIVATION)
     
     loss_fn = build_loss(config)
     optimizer = build_optimizer(config, model)
@@ -28,6 +29,7 @@ def train(config, output_dir):
     log_period = config.LOG_PERIOD
     eval_period = config.EVAL_PERIOD
     save_period = config.CHECKPOINT_PERIOD
+    save_prefix = config.SAVE_PREFIX
     device = config.DEVICE
 
     evaluator = Acc(thres=config.THRES, metric=config.VAL_METRIC)
@@ -69,13 +71,30 @@ def train(config, output_dir):
             evaluator.compute()
         
         if epoch % save_period == 0:
-            torch.save(model.state_dict(), os.path.join(output_dir, 'model_{}.pth'.format(epoch))) 
+            torch.save(model.state_dict(), os.path.join(output_dir, 
+                       '{}_trial_{}_epoch_{}.pth'.format(save_prefix,
+                       trial_num, epoch))) 
 
+
+def multi_train(cfg, output_dir, experiment_name='no_config',  
+                repeat_times=1, save_log=False, plot=False):
+    for trial_num in range(repeat_times):
+        logger, log_path = setup_logger('clinic', output_dir,
+                                        experiment_name, trial_num,
+                                        save_log)
+        logger.info('Training with config:\n{}'.format(cfg))
+        
+        train(cfg, output_dir, trial_num=trial_num)
+      
+        if plot:
+            plot_curve(log_path, experiment_name, output_dir, trial_num)
 
 def main():
     parser = argparse.ArgumentParser(description='Clinic Training')
     parser.add_argument('--cfg_file', default=None, type=str)
-    
+    parser.add_argument('--repeat_times', default=1, type=int)
+    parser.add_argument('--save_log', action='store_true')
+    parser.add_argument('--plot', action='store_true')
     args = parser.parse_args()
 
     if args.cfg_file:    
@@ -93,16 +112,11 @@ def main():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    logger, log_path = setup_logger('clinic', output_dir,
-                                    experiment_name)
-    logger.info('Training with config:\n{}'.format(cfg))
-
     if cfg.DEVICE == 'cuda':
         os.environ['CUDA_VISIBLE_DEVICES'] = cfg.DEVICE_ID
-    
-    train(cfg, output_dir)
 
-    plot_curve(log_path, experiment_name, output_dir)
+    multi_train(cfg, output_dir, experiment_name, args.repeat_times, 
+                args.save_log, args.plot)    
    
 
 if __name__ == '__main__':

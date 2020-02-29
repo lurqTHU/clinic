@@ -6,7 +6,7 @@ import argparse
 import os
 
 
-def plot_curve(log_path, experiment_name, output):
+def plot_curve(log_path, experiment_name, output_dir, trial_num=0):
     fp = open(log_path, 'r')
 
     train_loss = []
@@ -67,7 +67,8 @@ def plot_curve(log_path, experiment_name, output):
 #    plt.ylabel('auc')
 
     # plt.draw()
-    fig_path = os.path.join(output, experiment_name + '.png')
+    fig_path = os.path.join(output_dir, experiment_name \
+               + 'trial_{}'.format(trial_num) + '.png')
     print('Min trainig loss: {:.3f}'.format(min(train_loss)))
     print('Max accuracy: {:.3f}'.format(max(curve_acc)))
     print('Min distance: {:.3f}'.format(min(curve_dis)))
