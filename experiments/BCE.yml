@@ -36,4 +36,5 @@ TRAIN_RATIO: 0.8
 RANDOM_SEED: 7 
 
 # TEST
-TEST_WEIGHT: './output/BCE/vas.pth'
+TEST_FOLDER: './output/BCE/'
+TEST_PREFIX: 'QOL'

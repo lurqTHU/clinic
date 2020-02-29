@@ -41,7 +41,7 @@ class Acc(object):
         self.results.append(result.cpu())
         self.targets.extend(np.asarray(target.cpu()))
 
-    def compute(self, roc_curve=False):
+    def compute(self):
         logger = logging.getLogger('clinic.val')
 
         results = torch.cat(self.results, dim=0).cpu().numpy()
@@ -69,5 +69,4 @@ class Acc(object):
             logger.info('Accuracy at threshold {:.3f}: {:.3f}, Loss: {:.3f}, '   
                         'Mean Distance: {:.3f}, AUC: {:.3f}'\
                         .format(self.thres, acc, loss, delta, auc)) 
-            if roc_curve == True:
-                return fpr, tpr, thresholds
+            return acc, fpr, tpr, thresholds

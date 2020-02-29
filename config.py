@@ -39,6 +39,7 @@ _C.TRAIN_RATIO = 0.7
 _C.RANDOM_SEED = 1
 
 # TEST
-_C.TEST_WEIGHT = './output/'
+_C.TEST_FOLDER = './output/'
+_C.TEST_PREFIX = 'VAS'
 
 cfg = _C.clone()
