@@ -14,7 +14,7 @@ from utils.plot_curves import plot_curve
 def train(config, output_dir, trial_num=0):
     logger = logging.getLogger('clinic.train')
  
-    train_loader, val_loader, feat_dim = build_dataloader(config)
+    train_loader, _, _,  val_loader, feat_dim = build_dataloader(config)
 
     model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim, 
                   mid_planes=config.MID_PLANES, 

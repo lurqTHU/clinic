@@ -14,9 +14,15 @@ def build_dataloader(cfg):
     
     dataset = Clinic(cfg)
     
+    trainval_set = ImageDataset(dataset.trainval)
+    trainval_loader = DataLoader(trainval_set, 
+                                 batch_size=train_batch,
+                                 shuffle=True,
+                                 collate_fn=train_collate_fn)
+
     train_set = ImageDataset(dataset.train)
     train_loader = DataLoader(train_set, 
-                              batch_size=train_batch,
+                              batch_size=val_batch,
                               shuffle=True,
                               collate_fn=train_collate_fn)
 
@@ -25,8 +31,16 @@ def build_dataloader(cfg):
                             batch_size=val_batch,
                             shuffle=False,
                             collate_fn=train_collate_fn)
+   
+    test_set = ImageDataset(dataset.test)
+    test_loader = DataLoader(test_set, 
+                             batch_size=val_batch,
+                             shuffle=False,
+                             collate_fn=train_collate_fn)
+   
+    return trainval_loader, train_loader, val_loader,\
+           test_loader, len(dataset.train[0][0])
 
-    return train_loader, val_loader, len(dataset.train[0][0])
 
 if __name__ == '__main__':
     import sys

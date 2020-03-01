@@ -15,7 +15,11 @@ def test(config, output_dir, test_weight):
 
     device = config.DEVICE
  
-    train_loader, val_loader, feat_dim = build_dataloader(config)
+    trainval_loader, train_loader, val_loader,\
+        test_loader, feat_dim = build_dataloader(config)
+    
+    all_loaders = (trainval_loader, train_loader, val_loader,
+                   test_loader)
     
     model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim,
                   mid_planes=config.MID_PLANES, 
@@ -27,25 +31,29 @@ def test(config, output_dir, test_weight):
     evaluator = Acc(thres=config.THRES, metric=config.VAL_METRIC)
     
     model.eval()
-   
-    for iteration, (feat, target) in enumerate(val_loader):
-        with torch.no_grad():
-            feat = feat.to(device)
-            target = target.to(device)
-            score = model(feat)
-            evaluator.update((score, target))
-    acc_test, fpr, tpr, thresholds = evaluator.compute()
+ 
+    all_acc = []
+    all_fpr = []
+    all_tpr = []
+    all_thres = [] 
+    for data_loader in all_loaders: 
+        evaluator.reset()
+        for iteration, (feat, target) in enumerate(data_loader):
+            with torch.no_grad():
+                feat = feat.to(device)
+                target = target.to(device)
+                score = model(feat)
+                evaluator.update((score, target))
+        acc, fpr, tpr, thresholds = evaluator.compute()
 
-    evaluator.reset()
-    for iteration, (feat, target) in enumerate(train_loader):
-        with torch.no_grad():
-            feat = feat.to(device)
-            target = target.to(device)
-            score = model(feat)
-            evaluator.update((score, target))
-    acc_train, fpr, tpr, thresholds = evaluator.compute()
-    auc, optimum = analyze_roc(fpr, tpr, thresholds)
-    return auc, optimum, acc_train, acc_train, acc_test
+        all_acc.append(acc)
+        all_fpr.append(fpr)
+        all_tpr.append(tpr)
+        all_thres.append(thresholds)
+   
+    # Only calculate AUC for trainval set
+    auc, optimum = analyze_roc(all_fpr[0], all_tpr[0], all_thres[0])
+    return auc, optimum, all_acc
 
 
 def calculate_95CI(data):
@@ -79,14 +87,13 @@ def multi_test(cfg, output_dir):
     for weight in model_weights:
         if weight.startswith(test_prefix) and weight.endswith('.pth'):
             weight = os.path.join(test_folder, weight)
-            auc, optimum, acc_train, \
-                acc_val, acc_test = test(cfg, output_dir, weight)
+            auc, optimum, acc = test(cfg, output_dir, weight)
             all_auc.append(auc)
             all_optimum.append(optimum)
-            all_train_acc.append(acc_train)
-            all_val_acc.append(acc_val)
-            all_test_acc.append(acc_test)
-    
+            all_train_acc.append(acc[1])
+            all_val_acc.append(acc[2])
+            all_test_acc.append(acc[3])
+   
     auc = calculate_95CI(np.array(all_auc))
     optimum = calculate_95CI(np.array(all_optimum).transpose(1,0))
     train_acc = calculate_95CI(np.array(all_train_acc))
