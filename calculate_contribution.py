@@ -14,7 +14,7 @@ import numpy as np
 def calculate_contribution(config, test_weight):
     device = config.DEVICE
  
-    train_loader, val_loader, feat_dim = build_dataloader(config)
+    train_loader, _, _, val_loader, feat_dim = build_dataloader(config)
     
     model = BPnet(num_layers=config.NUM_LAYERS, in_planes=feat_dim,
                   mid_planes=config.MID_PLANES, activation_type=config.ACTIVATION)
