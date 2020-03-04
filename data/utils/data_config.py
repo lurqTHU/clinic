@@ -59,7 +59,7 @@ anxiety_cfg =  [
 qol_cfg = [
               {'type': 'remove'},                                              # 基线
               {'type': ['max_minus_min', 'threshold'], 
-               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 10.0},                  # 初粘当天
+               'index_ranges': [0,1,2,3,4,5,6,7,8], 'threshold': 7.0},                  # 初粘当天
               {'type': 'remove'},                  # 初粘后一天
               {'type': 'remove'},                  # day2
               {'type': 'remove'},                  # day3
