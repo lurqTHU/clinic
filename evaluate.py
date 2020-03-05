@@ -53,7 +53,7 @@ class Acc(object):
             dist = np.sqrt((results-targets) * (results-targets))
         elif self.metric == 'PROB':
             results = 1.0/(1+np.exp(-results))
-            dist = np.where(targets == 1, results, 1-results)
+            dist = np.where(targets == 1, results, 1-results)            
         
         if self.metric in ['L1', 'L2']:
             acc = np.sum(dist <= self.thres) / dist.shape[0]
@@ -61,7 +61,8 @@ class Acc(object):
                         'Accuracy at threshold {:.3f}: {:.3f}'\
                         .format(np.mean(dist), self.thres, acc))
         elif self.metric == 'PROB':
-            acc = np.sum(dist > self.thres) / dist.shape[0]
+            acc = (np.sum((results >= self.thres)&(targets==1)) + \
+                   np.sum((results < self.thres)&(targets==0))) / dist.shape[0]
             loss = np.mean(-np.log2(dist))
             delta = np.mean(1-dist)
             fpr, tpr, thresholds = metrics.roc_curve(targets, results, pos_label=1)
