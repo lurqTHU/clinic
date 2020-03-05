@@ -11,7 +11,7 @@ from utils.roc import analyze_roc
 import numpy as np
 
 
-def test(config, output_dir, test_weight):
+def test(config, output_dir, test_weight, plot_roc=False):
 
     device = config.DEVICE
  
@@ -52,19 +52,27 @@ def test(config, output_dir, test_weight):
         all_thres.append(thresholds)
    
     # Only calculate AUC for trainval set
-    auc, optimum = analyze_roc(all_fpr[0], all_tpr[0], all_thres[0])
+    auc, optimum = analyze_roc(all_fpr[0], all_tpr[0], all_thres[0], 
+                               plot_path=output_dir, 
+                               target_name='Pain', 
+                               plot=plot_roc)
     return auc, optimum, all_acc
 
 
-def calculate_95CI(data):
+def calculate_95CI(data, return_idx=False):
     if len(data.shape) == 1:
         data = data[np.newaxis, :]
     trial_num = data.shape[1]
     interval = int(np.ceil(trial_num * 0.25))
-    
-    med = np.median(data, axis=1)
+   
+    idx = np.argsort(data, axis=1)
+    med = data[np.arange(data.shape[0]), \
+               idx[:, int(np.floor(trial_num / 2.0))]]
     sorted_data = np.sort(data, axis=1)
     CI_95 = sorted_data[:, (interval, trial_num-interval-1)]
+    
+    if return_idx:
+        return med, CI_95, idx[:, int(np.floor(trial_num/2.0))]
     return med, CI_95
     
     
@@ -94,12 +102,23 @@ def multi_test(cfg, output_dir):
             all_val_acc.append(acc[2])
             all_test_acc.append(acc[3])
    
-    auc = calculate_95CI(np.array(all_auc))
+    auc = calculate_95CI(np.array(all_auc), return_idx=True)
     optimum = calculate_95CI(np.array(all_optimum).transpose(1,0))
     train_acc = calculate_95CI(np.array(all_train_acc))
     val_acc = calculate_95CI(np.array(all_val_acc))
     test_acc = calculate_95CI(np.array(all_test_acc))
    
+    # Plot ROC curve of the median AUC
+    idx = 0 
+    for weight in model_weights:
+        if weight.startswith(test_prefix) and weight.endswith('.pth'):
+            if idx == auc[2]:
+                weight = os.path.join(test_folder, weight)
+                test(cfg, output_dir, weight, plot_roc=True)
+                break
+            else:
+                idx += 1
+ 
     logger.info('Median of AUC: {:.3f}, 95% CI: [{:.3f}, {:.3f}]'\
                 .format(auc[0][0], auc[1][0,0], auc[1][0,1]))
     logger.info('Median of Sensitivity: {:.3f}, 95% CI: [{:.3f}, {:.3f}]'\
@@ -112,7 +131,7 @@ def multi_test(cfg, output_dir):
                 .format(val_acc[0][0], val_acc[1][0,0], val_acc[1][0,1]))
     logger.info('Median of test acc: {:.3f}, 95% CI: [{:.3f}, {:.3f}]'\
                 .format(test_acc[0][0], test_acc[1][0,0], test_acc[1][0,1]))
-
+           
 
 def main():
     parser = argparse.ArgumentParser(description='Clinic Testing')

@@ -25,7 +25,8 @@ def analyze_roc(fpr, tpr, thresholds, plot_path='./',
         ax = fig.add_subplot(1,1,1)
         
         ax.plot(fpr, tpr, 'b', linewidth=2)
-        ax.set_title('ROC Curve of {:>3}'.format(target_name.upper()), fontsize=25, fontweight='bold')
+        ax.set_title('{:>3}'.format(target_name.capitalize()), 
+                     fontsize=25, fontweight='bold')
         ax.set_xlabel('1-Specificity', fontsize=17, fontweight='bold')
         ax.set_ylabel('Sensitivity', fontsize=17, fontweight='bold')
       
