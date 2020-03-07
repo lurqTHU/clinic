@@ -1,7 +1,9 @@
 import numpy as np
 from torch.utils.data import Dataset
 import json
-from data.utils import construct_Clinic
+import sys
+sys.append('../../')
+from dataset import construct_Clinic
 import torch
 
 class Clinic(object):
