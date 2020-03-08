@@ -2,7 +2,7 @@ import numpy as np
 import os
 from collections import defaultdict
 import copy
-from data_config import feat_cfg, vas_cfg, anxiety_cfg, qol_cfg, icon_cfg
+from dataset.data_config import feat_cfg, vas_cfg, anxiety_cfg, qol_cfg, icon_cfg
 
 
 def modify_features(feat, feat_type='feat'):

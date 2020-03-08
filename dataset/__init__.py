@@ -1,1 +1,1 @@
-from construct import construct_Clinic
+from dataset.construct import construct_Clinic, partition_dataset
