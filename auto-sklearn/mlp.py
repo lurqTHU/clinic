@@ -159,10 +159,14 @@ def main(args):
         include_estimators=['MLPClassifier'],
         include_preprocessors=['no_preprocessing'],
         ensemble_size=1,
-        initial_configurations_via_metalearning=0
+        initial_configurations_via_metalearning=0,
+        resampling_strategy='cv',
+        resampling_strategy_arguments={'folds': 5}
     )
-    clf.fit(X=X_train, y=y_train, X_test=X_test, 
-            y_test=y_test)
+
+    clf.fit(X=X_train.copy(), y=y_train.copy(), X_test=X_test.copy(), 
+            y_test=y_test.copy())
+    clf.refit(X=X_train.copy(), y=y_train.copy())   
 
     # Print test accuracy and statistics.
     y_pred = clf.predict(X_test)
