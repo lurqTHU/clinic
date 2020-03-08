@@ -16,6 +16,7 @@ import numpy as np
 import sys
 sys.path.append('../')
 from dataset import partition_dataset
+import os
 
 
 # Create MLP classifier component for auto-sklearn.
@@ -101,7 +102,7 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         )
         activation = CategoricalHyperparameter(
             name="activation", 
-            choices=['identity', 'logistic', 'tanh', 'relu'],
+            choices=['logistic', 'tanh', 'relu'],
             default_value='relu'
         )
         alpha = UniformFloatHyperparameter(
@@ -110,7 +111,7 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         )
         solver = CategoricalHyperparameter(
             name="solver", 
-            choices=['lbfgs', 'sgd', 'adam'], 
+            choices=['sgd', 'adam'], 
             default_value='sgd'
         )
         max_iter = CategoricalHyperparameter(
@@ -137,6 +138,7 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
 
 
 def main(args):
+    os.environ['OMP_NUM_THREADS']='1'
     # Add MLP classifier component to auto-sklearn.
     autosklearn.pipeline.components.classification.add_classifier(MLPClassifier)
     cs = MLPClassifier.get_hyperparameter_search_space()
@@ -148,29 +150,35 @@ def main(args):
                                 use_icon=args.use_icon, 
                                 ratio=0.8, seed=args.seed)
     
-    X_train, X_test = feats[masks[0]], feats[masks[3]] 
-    y_train, y_test = targets[masks[0]].squeeze(),\
-                      targets[masks[3]].squeeze()
+    X_trainval, X_train, X_val, X_test =\
+        feats[masks[0]], feats[masks[1]], feats[masks[2]], feats[masks[3]] 
+    y_trainval, y_train, y_val, y_test =\
+        targets[masks[0]].squeeze(), targets[masks[1]].squeeze(),\
+        targets[masks[2]].squeeze(), targets[masks[3]].squeeze()
 
     # Fit MLP classifier to the data.
     clf = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=1800,
-        per_run_time_limit=10,
-        include_estimators=['MLPClassifier'],
+        time_left_for_this_task=900,
+        per_run_time_limit=30,
+        include_estimators=['random_forest'],# 'MLPClassifier''libsvm_svc', 'random_forest'],
         include_preprocessors=['no_preprocessing'],
         ensemble_size=1,
+        ensemble_nbest=1,
+        ensemble_memory_limit=4096,
+        ml_memory_limit=4096,
         initial_configurations_via_metalearning=0,
         resampling_strategy='cv',
-        resampling_strategy_arguments={'folds': 5}
+        resampling_strategy_arguments={'folds': 4,
+                                       'shuffle': True},
     )
 
-    clf.fit(X=X_train.copy(), y=y_train.copy(), X_test=X_test.copy(), 
-            y_test=y_test.copy())
-    clf.refit(X=X_train.copy(), y=y_train.copy())   
+    clf.fit(X=feats.copy(), y=targets.copy().squeeze())
+    clf.refit(X=feats.copy(), y=targets.copy().squeeze())   
 
     # Print test accuracy and statistics.
-    y_pred = clf.predict(X_test)
-    print("accuracy: ", sklearn.metrics.accuracy_score(y_pred, y_test))
+    print("train acc: ", sklearn.metrics.accuracy_score(clf.predict(X_train), y_train))
+    print("val acc: ", sklearn.metrics.accuracy_score(clf.predict(X_val), y_val))
+    print("test acc:", sklearn.metrics.accuracy_score(clf.predict(X_test), y_test))
     print(clf.sprint_statistics())
     print(clf.show_models())
 
