@@ -39,7 +39,7 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         self.num_nodes_per_layer = int(self.num_nodes_per_layer)
         self.hidden_layer_depth = int(self.hidden_layer_depth)
         self.alpha = float(self.alpha)
-        self.max_iter = int(max_iter)
+        self.max_iter = int(self.max_iter)
         self.learning_rate_init = float(self.learning_rate_init)
 
 
@@ -113,9 +113,10 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
             choices=['lbfgs', 'sgd', 'adam'], 
             default_value='sgd'
         )
-        max_iter = UniformIntegerHyperparameter(
-            name="max_iter", lower=500, 
-            upper=500, default_value=500
+        max_iter = CategoricalHyperparameter(
+            name="max_iter", 
+            choices=[200, 300, 400, 500],
+            default_value=500
         )
         learning_rate = CategoricalHyperparameter(
             name="learning_rate", 
