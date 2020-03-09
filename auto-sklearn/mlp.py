@@ -17,6 +17,7 @@ import sys
 sys.path.append('../')
 from dataset import partition_dataset
 import os
+from tools import calculate_95CI, analyze_roc
 
 
 # Create MLP classifier component for auto-sklearn.
@@ -158,9 +159,9 @@ def main(args):
 
     # Fit MLP classifier to the data.
     clf = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=900,
+        time_left_for_this_task=1800,
         per_run_time_limit=30,
-        include_estimators=['random_forest'],# 'MLPClassifier''libsvm_svc', 'random_forest'],
+        include_estimators=['MLPClassifier'],# 'MLPClassifier''libsvm_svc', 'random_forest'],
         include_preprocessors=['no_preprocessing'],
         ensemble_size=1,
         ensemble_nbest=1,
@@ -172,13 +173,20 @@ def main(args):
                                        'shuffle': True},
     )
 
-    clf.fit(X=feats.copy(), y=targets.copy().squeeze())
-    clf.refit(X=feats.copy(), y=targets.copy().squeeze())   
-
-    # Print test accuracy and statistics.
-    print("train acc: ", sklearn.metrics.accuracy_score(clf.predict(X_train), y_train))
-    print("val acc: ", sklearn.metrics.accuracy_score(clf.predict(X_val), y_val))
-    print("test acc:", sklearn.metrics.accuracy_score(clf.predict(X_test), y_test))
+    clf.fit(X=X_trainval.copy(), y=y_trainval.copy().squeeze())
+   
+    all_train_acc = []
+    all_val_acc = []
+    all_test_acc = []
+    for i in range(100):
+        clf.refit(X=X_trainval.copy(), y=y_trainval.copy().squeeze())   
+        all_train_acc.append(sklearn.metrics.accuracy_score(clf.predict(X_train), y_train))
+        all_val_acc.append(sklearn.metrics.accuracy_score(clf.predict(X_val), y_val))
+        all_test_acc.append(sklearn.metrics.accuracy_score(clf.predict(X_test), y_test))
+   
+    print('Train Acc:', calculate_95CI(np.array(all_train_acc))) 
+    print('Val Acc:', calculate_95CI(np.array(all_val_acc)))
+    print('Test Acc:', calculate_95CI(np.array(all_test_acc)))
     print(clf.sprint_statistics())
     print(clf.show_models())
 
