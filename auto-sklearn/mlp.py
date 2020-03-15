@@ -18,7 +18,8 @@ sys.path.append('../')
 from dataset import partition_dataset
 import os
 from tools import calculate_95CI, analyze_roc
-
+from collections import Counter
+from collections import defaultdict
 
 # Create MLP classifier component for auto-sklearn.
 class MLPClassifier(AutoSklearnClassificationAlgorithm):
@@ -145,7 +146,7 @@ def main(args):
     cs = MLPClassifier.get_hyperparameter_search_space()
     print(cs)
 
-    data_path = '../dataset/update.xlsx'
+    data_path = '../dataset/3.12-xulin-update.xlsx'
     feats, targets,\
       masks = partition_dataset(data_path, target_name=args.target_name, 
                                 use_icon=args.use_icon, 
@@ -172,24 +173,36 @@ def main(args):
         resampling_strategy_arguments={'folds': 4,
                                        'shuffle': True},
     )
-
+    
+    # Search hyper-parameters
     clf.fit(X=X_trainval.copy(), y=y_trainval.copy().squeeze())
-   
-    all_train_acc = []
-    all_val_acc = []
-    all_test_acc = []
+  
+    # Calculate 95% CI and evaluate
+    keys = ['train', 'val', 'test'] 
+    acc_recorder = defaultdict(list)
+    error_recorder = defaultdict(list)
+    datas = {'train': X_train, 'val': X_val, 'test': X_test}
+    labels = {'train': y_train, 'val': y_val, 'test': y_test} 
     for i in range(100):
         clf.refit(X=X_trainval.copy(), y=y_trainval.copy().squeeze())   
-        all_train_acc.append(sklearn.metrics.accuracy_score(clf.predict(X_train), y_train))
-        all_val_acc.append(sklearn.metrics.accuracy_score(clf.predict(X_val), y_val))
-        all_test_acc.append(sklearn.metrics.accuracy_score(clf.predict(X_test), y_test))
-   
-    print('Train Acc:', calculate_95CI(np.array(all_train_acc))) 
-    print('Val Acc:', calculate_95CI(np.array(all_val_acc)))
-    print('Test Acc:', calculate_95CI(np.array(all_test_acc)))
+        for key in keys:
+            acc_recorder[key].append(sklearn.metrics.accuracy_score(clf.predict(datas[key]), labels[key]))
+            error_recorder[key].append(np.where(clf.predict(datas[key])!=labels[key])[0])
+            
+    
+    for i, key in enumerate(keys): 
+        error_recorder[key] = [item for sublist in error_recorder[key] for item in sublist]
+        error_recorder[key] = [masks[i+1][idx] for idx in error_recorder[key]]
+        error_recorder[key] = Counter(error_recorder[key])
+    
+    for key in keys:
+        print('{} Acc:'.format(key.capitalize()), calculate_95CI(np.array(acc_recorder[key]))) 
+
     print(clf.sprint_statistics())
     print(clf.show_models())
 
+    for key in keys:
+        print('{} Error_recorder'.format(key.capitalize()), error_recorder[key])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Auto Sklearn')
