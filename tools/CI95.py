@@ -5,7 +5,7 @@ def calculate_95CI(data, return_idx=False):
     if len(data.shape) == 1:
         data = data[np.newaxis, :]
     trial_num = data.shape[1]
-    interval = int(np.ceil(trial_num * 0.25))
+    interval = int(np.ceil(trial_num * 0.025))
    
     idx = np.argsort(data, axis=1)
     med = data[np.arange(data.shape[0]), \
