@@ -146,7 +146,7 @@ def main(args):
     cs = MLPClassifier.get_hyperparameter_search_space()
     print(cs)
 
-    data_path = '../dataset/3.12-xulin-update.xlsx'
+    data_path = '../dataset/update.xlsx'
     feats, targets,\
       masks = partition_dataset(data_path, target_name=args.target_name, 
                                 use_icon=args.use_icon, 
@@ -175,28 +175,43 @@ def main(args):
     )
     
     # Search hyper-parameters
-    clf.fit(X=X_trainval.copy(), y=y_trainval.copy().squeeze())
-  
-    # Calculate 95% CI and evaluate
-    keys = ['train', 'val', 'test'] 
+    clf.fit(X=X_trainval.copy(), 
+            y=y_trainval.copy().squeeze(),
+            metric=autosklearn.metrics.accuracy)
+ 
+    # Evaluate and Calculate 95% CI on each subset
+    keys = ['trainval', 'train', 'val', 'test'] 
+    datas = {'trainval': X_trainval, 'train': X_train, 'val': X_val, 'test': X_test}
+    labels = {'trainval': y_trainval, 'train': y_train, 'val': y_val, 'test': y_test} 
     acc_recorder = defaultdict(list)
+    auc_recorder = defaultdict(list)
+    optimum_recorder = defaultdict(list)
     error_recorder = defaultdict(list)
-    datas = {'train': X_train, 'val': X_val, 'test': X_test}
-    labels = {'train': y_train, 'val': y_val, 'test': y_test} 
+    # Repeat training for 100 times
     for i in range(100):
         clf.refit(X=X_trainval.copy(), y=y_trainval.copy().squeeze())   
         for key in keys:
-            acc_recorder[key].append(sklearn.metrics.accuracy_score(clf.predict(datas[key]), labels[key]))
-            error_recorder[key].append(np.where(clf.predict(datas[key])!=labels[key])[0])
-            
-    
+            # Evaluate, calculate ROC and record the error pattern
+            prediction = clf.predict(datas[key])
+            proba = clf.predict_proba(datas[key])
+            proba = proba[:, 1]
+            fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels[key], proba, pos_label=1)
+            auc, optimum = analyze_roc(fpr, tpr, thresholds, plot=False)
+            acc_recorder[key].append(sklearn.metrics.accuracy_score(prediction, labels[key]))
+            auc_recorder[key].append(auc)
+            optimum_recorder[key].append(optimum)
+            error_recorder[key].append(np.where(prediction!=labels[key])[0])
+           
+    # Count the error pattern for each subset
     for i, key in enumerate(keys): 
         error_recorder[key] = [item for sublist in error_recorder[key] for item in sublist]
-        error_recorder[key] = [masks[i+1][idx] for idx in error_recorder[key]]
+        error_recorder[key] = [masks[i][idx] for idx in error_recorder[key]]
         error_recorder[key] = Counter(error_recorder[key])
-    
+   
     for key in keys:
         print('{} Acc:'.format(key.capitalize()), calculate_95CI(np.array(acc_recorder[key]))) 
+        print('{} AUC:'.format(key.capitalize()), calculate_95CI(np.array(auc_recorder[key])))
+        print('{} Opimum:'.format(key.capitalize()), calculate_95CI(np.array(optimum_recorder[key]).transpose(1,0)))
 
     print(clf.sprint_statistics())
     print(clf.show_models())
@@ -204,6 +219,7 @@ def main(args):
     for key in keys:
         print('{} Error_recorder'.format(key.capitalize()), error_recorder[key])
 
+ 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Auto Sklearn')
     parser.add_argument('--target_name', choices=['vas', 'sas', 'qol'], 
