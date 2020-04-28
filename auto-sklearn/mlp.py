@@ -21,6 +21,7 @@ from tools import calculate_95CI, analyze_roc
 from collections import Counter
 from collections import defaultdict
 
+
 # Create MLP classifier component for auto-sklearn.
 class MLPClassifier(AutoSklearnClassificationAlgorithm):
     def __init__(self, hidden_layer_depth, num_nodes_per_layer,
@@ -139,6 +140,12 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         return cs
 
 
+def evaluate(prob, label, threshold):
+    acc = (np.sum((prob >= threshold)&(label==1)) + \
+           np.sum((prob < threshold)&(label==0))) / prob.shape[0]
+    return acc
+
+
 def main(args):
     os.environ['OMP_NUM_THREADS']='1'
     # Add MLP classifier component to auto-sklearn.
@@ -180,6 +187,7 @@ def main(args):
             metric=autosklearn.metrics.accuracy)
  
     # Evaluate and Calculate 95% CI on each subset
+    eval_thres = args.threshold 
     keys = ['trainval', 'train', 'val', 'test'] 
     datas = {'trainval': X_trainval, 'train': X_train, 'val': X_val, 'test': X_test}
     labels = {'trainval': y_trainval, 'train': y_train, 'val': y_val, 'test': y_test} 
@@ -197,7 +205,7 @@ def main(args):
             proba = proba[:, 1]
             fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels[key], proba, pos_label=1)
             auc, optimum = analyze_roc(fpr, tpr, thresholds, plot=False)
-            acc_recorder[key].append(sklearn.metrics.accuracy_score(prediction, labels[key]))
+            acc_recorder[key].append(evaluate(proba, labels[key], eval_thres))
             auc_recorder[key].append(auc)
             optimum_recorder[key].append(optimum)
             error_recorder[key].append(np.where(prediction!=labels[key])[0])
@@ -226,5 +234,6 @@ if __name__ == '__main__':
                         default='vas', type=str)
     parser.add_argument('--use_icon', default=True, type=bool)
     parser.add_argument('--seed', default=0, type=int)
+    parser.add_argument('--threshold', default=0.5, type=float)
     args = parser.parse_args()
     main(args) 
