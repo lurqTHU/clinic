@@ -119,8 +119,8 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         )
         max_iter = CategoricalHyperparameter(
             name="max_iter", 
-            choices=[200, 300, 400, 500],
-            default_value=500
+            choices=[10, 20, 30, 40, 50, 60, 80, 100],
+            default_value=40
         )
         learning_rate = CategoricalHyperparameter(
             name="learning_rate", 
@@ -153,7 +153,7 @@ def main(args):
     cs = MLPClassifier.get_hyperparameter_search_space()
     print(cs)
 
-    data_path = '../dataset/update.xlsx'
+    data_path = '../dataset/3.12-xulin-update.xlsx'
     feats, targets,\
       masks = partition_dataset(data_path, target_name=args.target_name, 
                                 use_icon=args.use_icon, 
