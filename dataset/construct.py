@@ -111,8 +111,8 @@ def partition_dataset(data_path, target_name='vas',
     train_mask = []
     val_mask = []
     rand_uniform = np.random.uniform(0, 1, len(trainval_mask))
-    train_mask.extend(np.array(trainval_mask)[rand_uniform<0.8])
-    val_mask.extend(np.array(trainval_mask)[rand_uniform>=0.8])
+    train_mask.extend(np.array(trainval_mask)[rand_uniform<0.75])
+    val_mask.extend(np.array(trainval_mask)[rand_uniform>=0.75])
       
     print('Trainval mask:', trainval_mask)
     print('test mask:', test_mask)
