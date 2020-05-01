@@ -119,7 +119,8 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         )
         max_iter = CategoricalHyperparameter(
             name="max_iter", 
-            choices=[10, 20, 30, 40, 50, 60, 80, 100],
+            choices=[10, 20, 30, 40, 50, 60, 
+                     80, 100, 120, 140, 160, 180],
             default_value=40
         )
         learning_rate = CategoricalHyperparameter(
@@ -173,7 +174,7 @@ def main(args):
 
     # Fit MLP classifier to the data.
     clf = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=1800,
+        time_left_for_this_task=3600,
         per_run_time_limit=30,
         include_estimators=['MLPClassifier'],# 'MLPClassifier''libsvm_svc', 'random_forest'],
         include_preprocessors=['no_preprocessing'],
