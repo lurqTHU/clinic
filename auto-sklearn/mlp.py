@@ -153,7 +153,13 @@ def main(args):
     cs = MLPClassifier.get_hyperparameter_search_space()
     print(cs)
 
-    data_path = '../dataset/3.12-xulin-update.xlsx'
+    if args.dataset == 'v-1':
+        data_path = '../dataset/update.xlsx'
+    elif args.dataset == 'v-2':
+        data_path = '../dataset/3.12-xulin-update.xlsx'
+    elif args.dataset == 'v-3':
+        data_path = '../dataset/3.21-extreme-update.xlsx'
+
     feats, targets,\
       masks = partition_dataset(data_path, target_name=args.target_name, 
                                 use_icon=args.use_icon, 
@@ -235,5 +241,6 @@ if __name__ == '__main__':
     parser.add_argument('--use_icon', default=True, type=bool)
     parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--threshold', default=0.5, type=float)
+    parser.add_argument('--dataset', choices=['v-1', 'v-2', 'v-3'], type=str)
     args = parser.parse_args()
     main(args) 
