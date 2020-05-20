@@ -97,15 +97,15 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         cs = ConfigurationSpace()
         hidden_layer_depth = UniformIntegerHyperparameter(
             name="hidden_layer_depth", 
-            lower=1, upper=3, default_value=1
+            lower=1, upper=2, default_value=2
         )
         num_nodes_per_layer = UniformIntegerHyperparameter(
             name="num_nodes_per_layer", 
-            lower=2, upper=16, default_value=8
+            lower=8, upper=9, default_value=9
         )
         activation = CategoricalHyperparameter(
             name="activation", 
-            choices=['logistic', 'tanh', 'relu'],
+            choices=['relu'],
             default_value='relu'
         )
         alpha = UniformFloatHyperparameter(
@@ -114,24 +114,23 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
         )
         solver = CategoricalHyperparameter(
             name="solver", 
-            choices=['sgd', 'adam'], 
-            default_value='sgd'
+            choices=['adam'], 
+            default_value='adam'
         )
         max_iter = CategoricalHyperparameter(
             name="max_iter", 
-            choices=[10, 20, 30, 40, 50, 60, 
-                     80, 100, 120, 140, 160, 180],
-            default_value=40
+            choices=[10],
+            default_value=10
         )
         learning_rate = CategoricalHyperparameter(
             name="learning_rate", 
-            choices=['constant', 'invscaling', 'adaptive'],
+            choices=['constant', ],
             default_value='constant'
         )
         learning_rate_init = CategoricalHyperparameter(
             name="learning_rate_init", 
-            choices=[0.1, 0.01, 0.001, 0.0001], 
-            default_value=0.01
+            choices=[0.1,], 
+            default_value=0.1
         )
    
         cs.add_hyperparameters(
@@ -142,9 +141,18 @@ class MLPClassifier(AutoSklearnClassificationAlgorithm):
 
 
 def evaluate(prob, label, threshold):
-    acc = (np.sum((prob >= threshold)&(label==1)) + \
+    acc = (float(np.sum((prob >= threshold)&(label==1))) + \
            np.sum((prob < threshold)&(label==0))) / prob.shape[0]
-    return acc
+    
+    recall = float(np.sum((prob >= threshold)&(label==1))) / \
+             np.sum(label==1)
+    precision = float(np.sum((prob >= threshold)&(label==1))) / \
+                np.sum(prob >= threshold)
+    if recall < 1e-16 or precision < 1e-16:
+        f1 = 0.0
+    else:
+        f1 = 2 * (recall * precision)/(recall + precision)
+    return acc, f1
 
 
 def main(args):
@@ -157,7 +165,7 @@ def main(args):
     if args.dataset == 'v-1':
         data_path = '../dataset/update.xlsx'
     elif args.dataset == 'v-2':
-        data_path = '../dataset/3.12-xulin-update.xlsx'
+        data_path = '../dataset/5.3-lurq-update.xlsx'
     elif args.dataset == 'v-3':
         data_path = '../dataset/3.21-extreme-update.xlsx'
 
@@ -174,7 +182,7 @@ def main(args):
 
     # Fit MLP classifier to the data.
     clf = autosklearn.classification.AutoSklearnClassifier(
-        time_left_for_this_task=3600,
+        time_left_for_this_task=900,
         per_run_time_limit=30,
         include_estimators=['MLPClassifier'],# 'MLPClassifier''libsvm_svc', 'random_forest'],
         include_preprocessors=['no_preprocessing'],
@@ -199,6 +207,7 @@ def main(args):
     datas = {'trainval': X_trainval, 'train': X_train, 'val': X_val, 'test': X_test}
     labels = {'trainval': y_trainval, 'train': y_train, 'val': y_val, 'test': y_test} 
     acc_recorder = defaultdict(list)
+    f1_recorder = defaultdict(list)
     auc_recorder = defaultdict(list)
     optimum_recorder = defaultdict(list)
     error_recorder = defaultdict(list)
@@ -212,7 +221,9 @@ def main(args):
             proba = proba[:, 1]
             fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels[key], proba, pos_label=1)
             auc, optimum = analyze_roc(fpr, tpr, thresholds, plot=False)
-            acc_recorder[key].append(evaluate(proba, labels[key], eval_thres))
+            scores = evaluate(proba, labels[key], eval_thres)
+            acc_recorder[key].append(scores[0])
+            f1_recorder[key].append(scores[1])
             auc_recorder[key].append(auc)
             optimum_recorder[key].append(optimum)
             error_recorder[key].append(np.where(prediction!=labels[key])[0])
@@ -225,6 +236,7 @@ def main(args):
    
     for key in keys:
         print('{} Acc:'.format(key.capitalize()), calculate_95CI(np.array(acc_recorder[key]))) 
+        print('{} F1:'.format(key.capitalize()), calculate_95CI(np.array(f1_recorder[key])))
         print('{} AUC:'.format(key.capitalize()), calculate_95CI(np.array(auc_recorder[key])))
         print('{} Opimum:'.format(key.capitalize()), calculate_95CI(np.array(optimum_recorder[key]).transpose(1,0)))
 
