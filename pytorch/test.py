@@ -7,7 +7,9 @@ import os
 from evaluate import Acc
 import logging
 import sys
-from utils.roc import analyze_roc 
+import sys
+sys.path.append('../')
+from tools import analyze_roc, calculate_95CI 
 import numpy as np
 
 
@@ -36,6 +38,7 @@ def test(config, output_dir, test_weight, plot_roc=False):
     all_fpr = []
     all_tpr = []
     all_thres = [] 
+    # Evaluate trainval, train, val and test subsets
     for data_loader in all_loaders: 
         evaluator.reset()
         for iteration, (feat, target) in enumerate(data_loader):

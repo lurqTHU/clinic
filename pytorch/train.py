@@ -50,14 +50,15 @@ def train(config, output_dir, trial_num=0):
             target = target.to(device)
             score = model(feat)
             loss = loss_fn(score, target)
-         
+        
             loss.backward()
             optimizer.step()
  
             loss_meter.update(loss.item(), feat.shape[0])
 
             if (iteration + 1) % log_period == 0:
-                logger.info('Epoch[{}/{}] Iteration[{}/{}] Loss: {:.3f}, Lr: {:.2e}'
+                logger.info('Epoch[{}/{}] Iteration[{}/{}] \
+                             Loss: {:.3f}, Lr: {:.2e}'
                     .format(epoch, epochs, (iteration+1), len(train_loader), 
                             loss_meter.avg, scheduler.get_lr()[0]))
             
@@ -74,7 +75,6 @@ def train(config, output_dir, trial_num=0):
             torch.save(model.state_dict(), os.path.join(output_dir, 
                        '{}_trial_{}_epoch_{}.pth'.format(save_prefix,
                        trial_num, epoch))) 
-
 
 def multi_train(cfg, output_dir, experiment_name='no_config',  
                 repeat_times=1, save_log=False, plot=False):
