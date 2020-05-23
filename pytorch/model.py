@@ -36,14 +36,14 @@ class BPnet(nn.Module):
         self.in_planes = in_planes
         self.mid_planes = mid_planes
         self.activation = activation_dict[activation_type]()
-        self.dropout = nn.Dropout(p=0.6)
+        self.dropout = nn.Dropout(p=0.5)
          
         self.in_layer = nn.Linear(self.in_planes, self.mid_planes, bias=True)
         layers = []
         for i in range(num_layers-1):
             layers.append(nn.Linear(self.mid_planes, self.mid_planes, bias=True))
             layers.append(self.activation)
-            layers.append(self.dropout)
+#            layers.append(self.dropout)
         self.mid_layer = nn.Sequential(*layers)
         self.out_layer = nn.Linear(self.mid_planes, 1, bias=True)
      

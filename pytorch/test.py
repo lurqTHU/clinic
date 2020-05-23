@@ -53,11 +53,13 @@ def test(config, output_dir, test_weight, plot_roc=False):
         all_fpr.append(fpr)
         all_tpr.append(tpr)
         all_thres.append(thresholds)
-   
+  
+    roc_name_dict = {'vas': 'Pain', 'sas': 'Anxiety', 
+                     'qol': 'Quality of Life'} 
     # Only calculate AUC for trainval set
     auc, optimum = analyze_roc(all_fpr[0], all_tpr[0], all_thres[0], 
                                plot_path=output_dir, 
-                               target_name='Pain', 
+                               target_name=roc_name_dict[cfg.TARGET_NAME], 
                                plot=plot_roc)
     return auc, optimum, all_acc
 
