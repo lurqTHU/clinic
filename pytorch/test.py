@@ -13,6 +13,9 @@ from tools import analyze_roc, calculate_95CI
 import numpy as np
 
 
+roc_name_dict = {'vas': 'Pain', 'sas': 'Anxiety', 
+                 'qol': 'Quality of Life'} 
+
 def test(config, output_dir, test_weight, plot_roc=False):
 
     device = config.DEVICE
@@ -54,8 +57,6 @@ def test(config, output_dir, test_weight, plot_roc=False):
         all_tpr.append(tpr)
         all_thres.append(thresholds)
   
-    roc_name_dict = {'vas': 'Pain', 'sas': 'Anxiety', 
-                     'qol': 'Quality of Life'} 
     # Only calculate AUC for trainval set
     auc, optimum = analyze_roc(all_fpr[0], all_tpr[0], all_thres[0], 
                                plot_path=output_dir, 
