@@ -1,5 +1,6 @@
-dataset/
 *.swp
 __pycache__/
 experiments/
 output/
+*.png
+*.xlsx

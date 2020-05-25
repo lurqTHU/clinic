@@ -21,7 +21,8 @@ def build_optimizer(cfg, model):
         params += [{'params': [value], 'lr':lr, 'weight_decay': weight_decay}]
     
     if model_optimizer == 'SGD':
-        optimizer = getattr(torch.optim, model_optimizer)(params, momentum=0.9)
+        optimizer = getattr(torch.optim, model_optimizer)(params, 
+                            momentum=0.9)
     else:
         optimizer = getattr(torch.optim, model_optimizer)(params)
 

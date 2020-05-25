@@ -62,12 +62,14 @@ class Acc(object):
                         .format(np.mean(dist), self.thres, acc))
         elif self.metric == 'PROB':
             acc = (np.sum((results >= self.thres)&(targets==1)) + \
-                   np.sum((results < self.thres)&(targets==0))) / dist.shape[0]
+                   np.sum((results < self.thres)&(targets==0))) / \
+                       dist.shape[0]
             loss = np.mean(-np.log2(dist))
             delta = np.mean(1-dist)
-            fpr, tpr, thresholds = metrics.roc_curve(targets, results, pos_label=1)
+            fpr, tpr, thresholds = metrics.roc_curve(targets, 
+                                       results, pos_label=1)
             auc = metrics.auc(fpr, tpr) 
-            logger.info('Accuracy at threshold {:.3f}: {:.3f}, Loss: {:.3f}, '   
-                        'Mean Distance: {:.3f}, AUC: {:.3f}'\
+            logger.info('Accuracy at threshold {:.3f}: {:.3f}, \
+                         Loss: {:.3f}, Mean Distance: {:.3f}, AUC: {:.3f}'\
                         .format(self.thres, acc, loss, delta, auc)) 
             return acc, fpr, tpr, thresholds

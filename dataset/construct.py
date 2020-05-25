@@ -4,7 +4,7 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from data.utils import modify_features, modify_single_feat
+from dataset.modify_features import modify_features, modify_single_feat
 
 
 sheet_names = ['初粘患者设计', '精调患者设计', 
@@ -85,6 +85,53 @@ def construct_Clinic(excel_path, target_name, use_icon):
         all_icon = np.concatenate(all_icon, axis = 0)
         all_feat = np.concatenate((all_feat, all_icon), axis = 1)
     return {'feat': all_feat, 'target': all_target}
+
+
+def partition_dataset(data_path, target_name='vas', 
+                      use_icon=True, ratio=0.8, seed=0):
+    np.random.seed(seed)
+
+    infos = construct_Clinic(data_path, target_name, use_icon)
+    feats = infos['feat']
+    targets = infos['target']
+
+    print('Feature dimension: ', feats.shape[1])
+           
+    # Split dataset into trainval and test set
+    positive_mask = np.where(targets == 1)[0]
+    negative_mask = np.where(targets == 0)[0] 
+    trainval_mask = []
+    test_mask = []
+    for pick in (positive_mask, negative_mask):
+        total = len(pick)
+        rand_uniform = np.random.uniform(0, 1, total)
+        trainval_mask.extend(pick[rand_uniform < ratio])
+        test_mask.extend(pick[rand_uniform >= ratio])
+    # Further split trainval set into train and val set
+    train_mask = []
+    val_mask = []
+    rand_uniform = np.random.uniform(0, 1, len(trainval_mask))
+    train_mask.extend(np.array(trainval_mask)[rand_uniform<0.75])
+    val_mask.extend(np.array(trainval_mask)[rand_uniform>=0.75])
+      
+    print('Trainval mask:', trainval_mask)
+    print('test mask:', test_mask)
+    print('{:>23}{:>10}{:>7}{:>5}{:>6}'\
+          .format('Total', 'Trainval', 'Train', 'Val', 'Test'))
+    print('Negative counts: {:>6}{:>10}{:>7}{:>5}{:>6}'\
+          .format(np.sum(targets==0), 
+                  np.sum(targets[trainval_mask]==0),
+                  np.sum(targets[train_mask]==0),
+                  np.sum(targets[val_mask]==0),
+                  np.sum(targets[test_mask]==0)))
+    print('Positive counts: {:>6}{:>10}{:>7}{:>5}{:>6}'\
+          .format(np.sum(targets==1), 
+                  np.sum(targets[trainval_mask]==1),
+                  np.sum(targets[train_mask]==1),
+                  np.sum(targets[val_mask]==1),
+                  np.sum(targets[test_mask]==1)))
+    return feats, targets, (trainval_mask, \
+           train_mask, val_mask, test_mask)
 
 
 def analyze_feat(table, plot_dir, plot):

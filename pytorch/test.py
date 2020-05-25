@@ -7,9 +7,14 @@ import os
 from evaluate import Acc
 import logging
 import sys
-from utils.roc import analyze_roc 
+import sys
+sys.path.append('../')
+from tools import analyze_roc, calculate_95CI 
 import numpy as np
 
+
+roc_name_dict = {'vas': 'Pain', 'sas': 'Anxiety', 
+                 'qol': 'Quality of Life'} 
 
 def test(config, output_dir, test_weight, plot_roc=False):
 
@@ -36,6 +41,7 @@ def test(config, output_dir, test_weight, plot_roc=False):
     all_fpr = []
     all_tpr = []
     all_thres = [] 
+    # Evaluate trainval, train, val and test subsets
     for data_loader in all_loaders: 
         evaluator.reset()
         for iteration, (feat, target) in enumerate(data_loader):
@@ -50,32 +56,15 @@ def test(config, output_dir, test_weight, plot_roc=False):
         all_fpr.append(fpr)
         all_tpr.append(tpr)
         all_thres.append(thresholds)
-   
+  
     # Only calculate AUC for trainval set
     auc, optimum = analyze_roc(all_fpr[0], all_tpr[0], all_thres[0], 
                                plot_path=output_dir, 
-                               target_name='Pain', 
+                               target_name=roc_name_dict[cfg.TARGET_NAME], 
                                plot=plot_roc)
     return auc, optimum, all_acc
 
 
-def calculate_95CI(data, return_idx=False):
-    if len(data.shape) == 1:
-        data = data[np.newaxis, :]
-    trial_num = data.shape[1]
-    interval = int(np.ceil(trial_num * 0.25))
-   
-    idx = np.argsort(data, axis=1)
-    med = data[np.arange(data.shape[0]), \
-               idx[:, int(np.floor(trial_num / 2.0))]]
-    sorted_data = np.sort(data, axis=1)
-    CI_95 = sorted_data[:, (interval, trial_num-interval-1)]
-    
-    if return_idx:
-        return med, CI_95, idx[:, int(np.floor(trial_num/2.0))]
-    return med, CI_95
-    
-    
 def multi_test(cfg, output_dir):
     logger = logging.getLogger('clinic')
     logger.setLevel(logging.DEBUG)

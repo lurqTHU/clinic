@@ -37,7 +37,7 @@ def build_dataloader(cfg):
                              batch_size=val_batch,
                              shuffle=False,
                              collate_fn=train_collate_fn)
-   
+  
     return trainval_loader, train_loader, val_loader,\
            test_loader, len(dataset.train[0][0])
 

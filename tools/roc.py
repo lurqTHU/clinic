@@ -54,4 +54,4 @@ def analyze_roc(fpr, tpr, thresholds, plot_path='./',
         fig_path = os.path.join(plot_path, img_name)
         plt.savefig(fig_path)
     
-    return auc, (tpr[ind], 1-fpr[ind])
+    return auc, (tpr[ind], 1-fpr[ind], thresholds[ind])

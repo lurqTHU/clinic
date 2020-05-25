@@ -6,7 +6,8 @@ import argparse
 import os
 
 
-def plot_curve(log_path, experiment_name, output_dir, trial_num=0):
+def plot_curve(log_path, experiment_name, target_name,
+               output_dir, trial_num=0):
     fp = open(log_path, 'r')
 
     train_loss = []
@@ -47,7 +48,8 @@ def plot_curve(log_path, experiment_name, output_dir, trial_num=0):
     ax.tick_params('both', labelsize=30)
 #    ax.legend(['Train Loss', 'Validation Loss'], 
 #               fontsize=30)
-    ax.set_title('Learning Curve of QOL', fontsize=40, fontweight='bold')
+    ax.set_title('Learning Curve of {}'.format(target_name), 
+                 fontsize=40, fontweight='bold')
 #    ax.axvline(350, color='red', linewidth=3, linestyle='--')
 #    ax.annotate('350', xy=(355, 0.57), fontsize=30, color='red')
    
@@ -68,7 +70,7 @@ def plot_curve(log_path, experiment_name, output_dir, trial_num=0):
 
     # plt.draw()
     fig_path = os.path.join(output_dir, experiment_name \
-               + 'trial_{}'.format(trial_num) + '.png')
+               + '_trial_{}'.format(trial_num) + '.png')
     print('Min trainig loss: {:.3f}'.format(min(train_loss)))
     print('Max accuracy: {:.3f}'.format(max(curve_acc)))
     print('Min distance: {:.3f}'.format(min(curve_dis)))
@@ -79,11 +81,13 @@ def plot_curve(log_path, experiment_name, output_dir, trial_num=0):
 def main():
     parser = argparse.ArgumentParser(description="plot training curves")
     parser.add_argument("--log_file", help="log file", type=str)
-    parser.add_argument("--name", help="name of figure", type=str)
+    parser.add_argument("--figure_name", help="name of figure", type=str)
+    parser.add_argument("--figure_title", help="title of figure", type=str)
     parser.add_argument("--output_path", help="output path", type=str)
     args = parser.parse_args()
 
-    plot_curve(args.log_file, args.name, args.output_path)
+    plot_curve(args.log_file, args.figure_name, 
+               args.figure_title, args.output_path)
 
 
 if __name__ == '__main__':

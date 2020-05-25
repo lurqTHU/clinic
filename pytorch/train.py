@@ -11,6 +11,9 @@ import logging
 from utils.logger import setup_logger
 from utils.plot_curves import plot_curve
 
+roc_name_dict = {'vas': 'Pain', 'sas': 'Anxiety',
+                 'qol': 'Quality of Life'}
+
 def train(config, output_dir, trial_num=0):
     logger = logging.getLogger('clinic.train')
  
@@ -50,14 +53,15 @@ def train(config, output_dir, trial_num=0):
             target = target.to(device)
             score = model(feat)
             loss = loss_fn(score, target)
-         
+        
             loss.backward()
             optimizer.step()
  
             loss_meter.update(loss.item(), feat.shape[0])
 
             if (iteration + 1) % log_period == 0:
-                logger.info('Epoch[{}/{}] Iteration[{}/{}] Loss: {:.3f}, Lr: {:.2e}'
+                logger.info('Epoch[{}/{}] Iteration[{}/{}] \
+                             Loss: {:.3f}, Lr: {:.2e}'
                     .format(epoch, epochs, (iteration+1), len(train_loader), 
                             loss_meter.avg, scheduler.get_lr()[0]))
             
@@ -75,7 +79,6 @@ def train(config, output_dir, trial_num=0):
                        '{}_trial_{}_epoch_{}.pth'.format(save_prefix,
                        trial_num, epoch))) 
 
-
 def multi_train(cfg, output_dir, experiment_name='no_config',  
                 repeat_times=1, save_log=False, plot=False):
     for trial_num in range(repeat_times):
@@ -87,7 +90,9 @@ def multi_train(cfg, output_dir, experiment_name='no_config',
         train(cfg, output_dir, trial_num=trial_num)
       
         if plot:
-            plot_curve(log_path, experiment_name, output_dir, trial_num)
+            plot_curve(log_path, experiment_name, 
+                       roc_name_dict[cfg.TARGET_NAME],
+                       output_dir, trial_num)
 
 def main():
     parser = argparse.ArgumentParser(description='Clinic Training')
