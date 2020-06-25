@@ -17,6 +17,9 @@ roc_name_dict = {'vas': 'Pain', 'sas': 'Anxiety',
                  'qol': 'Quality of Life'} 
 
 def test(config, output_dir, test_weight, plot_roc=False):
+    """
+    Test a single model.
+    """
 
     device = config.DEVICE
  
@@ -66,6 +69,9 @@ def test(config, output_dir, test_weight, plot_roc=False):
 
 
 def multi_test(cfg, output_dir):
+    """
+    Test multiple models and calculate 95% CI interval.
+    """
     logger = logging.getLogger('clinic')
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler(stream=sys.stdout)

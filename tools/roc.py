@@ -8,6 +8,9 @@ from sklearn import metrics
 
 
 def calculate_best_point(fpr, tpr, thresholds):
+    """
+    Calculate best trade off point on ROC curve.
+    """
     delta = np.abs(1 - tpr - fpr)
     ind = np.argmin(delta)
     return ind
@@ -16,6 +19,11 @@ def calculate_best_point(fpr, tpr, thresholds):
 def analyze_roc(fpr, tpr, thresholds, plot_path='./', 
                 img_name='roc.png', target_name='VAS',
                 plot=False):
+    """
+    Calculate all statistics of the ROC curve, including auc, 
+    sensitivity and specificity of the best trade off point.
+    Optional: Plot and save the ROC curve.
+    """
     
     auc = metrics.auc(fpr, tpr)
     ind = calculate_best_point(fpr, tpr, thresholds)    
@@ -27,8 +35,8 @@ def analyze_roc(fpr, tpr, thresholds, plot_path='./',
         ax.plot(fpr, tpr, 'b', linewidth=2)
         ax.set_title('{:>3}'.format(target_name.capitalize()), 
                      fontsize=25, fontweight='bold')
-        ax.set_xlabel('1-Specificity', fontsize=17, fontweight='bold')
-        ax.set_ylabel('Sensitivity', fontsize=17, fontweight='bold')
+        ax.set_xlabel('1-Specificity', fontsize=20, fontweight='bold')
+        ax.set_ylabel('Sensitivity', fontsize=20, fontweight='bold')
       
         ax.set_aspect('equal')
         ax.set_xlim(0.0, 1.0)
@@ -52,6 +60,6 @@ def analyze_roc(fpr, tpr, thresholds, plot_path='./',
         ax.add_line(Line2D((0.0, 1.0), (0.0, 1.0), linestyle='--', linewidth=2, color='gray'))    
     
         fig_path = os.path.join(plot_path, img_name)
-        plt.savefig(fig_path)
+        plt.savefig(fig_path, dpi=300)
     
     return auc, (tpr[ind], 1-fpr[ind], thresholds[ind])
